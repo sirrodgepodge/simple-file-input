@@ -200,11 +200,11 @@ module.exports = (_temp = _class = function (_Component) {
         'label',
         {
           htmlFor: this.uniqueId,
-          className: 'simple-file-input-container ' + this.props.className + ' ' + this.props[this.state.loadingState]
+          className: 'simple-file-input-container ' + this.props.className + ' ' + this.props[this.state.loadingState + 'Class']
         },
         _react2.default.createElement('input', (_React$createElement = {
           className: 'simple-file-input-input ' + this.props.inputClass,
-          style: !this.props.inputClass && { display: 'none' },
+          style: !this.props.inputClass && { display: 'none !important' },
           type: 'file',
           accept: acceptableFileExtensions,
           onChange: this.onChange.bind(this, acceptableFileExtensions)
