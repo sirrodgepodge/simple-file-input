@@ -16,19 +16,21 @@ const acceptableExtensionsMap = {
   spreadsheet: ['xls', 'xlsx', 'numbers', 'csv']
 };
 
-// class lookup based on state
-const classLookup = {
-  pristine: 'fa-upload',
-  loading: 'fa-spinner fa-spin',
-  success: 'fa-thumbs-o-up',
-  failure: 'fa-thumbs-down'
-};
-
 
 module.exports = class FileInput extends Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
+
+    // loading state classes
+    pristineClass: PropTypes.string,
+    loadingClass: PropTypes.string,
+    successClass: PropTypes.string,
+    failureClass: PropTypes.string,
+
+    // child element classes
+    inputClass: PropTypes.string,
+    messageClass: PropTypes.string,
 
     // initial icon state
     initialLoadState: PropTypes.string,
@@ -57,7 +59,13 @@ module.exports = class FileInput extends Component {
     maxSize: 41943040 * 20,
 
     // sets minimum amount of time before loader clears
-    minLoadLength: 125
+    minLoadLength: 125,
+
+    // default to font awesome class names
+    pristineClass: 'fa fa-upload',
+    loadingClass: 'fa fa-spinner fa-spin',
+    successClass: 'fa fa-thumbs-o-up',
+    failureClass: 'fa fa-thumbs-down'
   }
 
   constructor(props, context) {
@@ -196,14 +204,16 @@ module.exports = class FileInput extends Component {
   render() {
     const acceptableFileExtensions = this.props.accept || acceptableExtensionsMap[this.props.type].map(val => `.${val}`);
 
+    console.log(this.props.inputClass, !this.props.inputClass);
+
     return (
       <label
         htmlFor={this.uniqueId}
-        className={`${this.props.className} ${this.getLoaderClass(this.state.loadingState)}`}
+        className={`simple-file-input-container ${this.props.className} ${this.props[this.state.loadingState]}`}
       >
         <input
-          className={this.props.inputClassName}
-          style={!this.props.inputClassName && {display: 'none'}}
+          className={`simple-file-input-input ${this.props.inputClass}`}
+          style={!this.props.inputClass && {display: 'none'}}
           type='file'
           accept={acceptableFileExtensions}
           onChange={this.onChange.bind(this, acceptableFileExtensions)}
@@ -211,7 +221,7 @@ module.exports = class FileInput extends Component {
           name={this.uniqueId}
           id={this.uniqueId}
         />
-      <span className={this.props.loaderMessageClassName}>
+      <span className={`simple-file-input-message ${this.props.messageClass}`}>
           {this.state.loadMessage}
         </span>
       </label>

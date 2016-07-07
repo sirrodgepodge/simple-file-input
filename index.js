@@ -46,14 +46,6 @@ var acceptableExtensionsMap = {
   spreadsheet: ['xls', 'xlsx', 'numbers', 'csv']
 };
 
-// class lookup based on state
-var classLookup = {
-  pristine: 'fa-upload',
-  loading: 'fa-spinner fa-spin',
-  success: 'fa-thumbs-o-up',
-  failure: 'fa-thumbs-down'
-};
-
 module.exports = (_temp = _class = function (_Component) {
   _inherits(FileInput, _Component);
 
@@ -202,22 +194,24 @@ module.exports = (_temp = _class = function (_Component) {
         return '.' + val;
       });
 
+      console.log(this.props.inputClass, !this.props.inputClass);
+
       return _react2.default.createElement(
         'label',
         {
           htmlFor: this.uniqueId,
-          className: this.props.className + ' ' + this.getLoaderClass(this.state.loadingState)
+          className: 'simple-file-input-container ' + this.props.className + ' ' + this.props[this.state.loadingState]
         },
         _react2.default.createElement('input', (_React$createElement = {
-          className: this.props.inputClassName,
-          style: !this.props.inputClassName && { display: 'none' },
+          className: 'simple-file-input-input ' + this.props.inputClass,
+          style: !this.props.inputClass && { display: 'none' },
           type: 'file',
           accept: acceptableFileExtensions,
           onChange: this.onChange.bind(this, acceptableFileExtensions)
         }, _defineProperty(_React$createElement, 'style', this.props.style), _defineProperty(_React$createElement, 'name', this.uniqueId), _defineProperty(_React$createElement, 'id', this.uniqueId), _React$createElement)),
         _react2.default.createElement(
           'span',
-          { className: this.props.loaderMessageClassName },
+          { className: 'simple-file-input-message ' + this.props.messageClass },
           this.state.loadMessage
         )
       );
@@ -228,6 +222,16 @@ module.exports = (_temp = _class = function (_Component) {
 }(_react.Component), _class.propTypes = {
   className: _react.PropTypes.string,
   style: _react.PropTypes.object,
+
+  // loading state classes
+  pristineClass: _react.PropTypes.string,
+  loadingClass: _react.PropTypes.string,
+  successClass: _react.PropTypes.string,
+  failureClass: _react.PropTypes.string,
+
+  // child element classes
+  inputClass: _react.PropTypes.string,
+  messageClass: _react.PropTypes.string,
 
   // initial icon state
   initialLoadState: _react.PropTypes.string,
@@ -253,5 +257,11 @@ module.exports = (_temp = _class = function (_Component) {
   maxSize: 41943040 * 20,
 
   // sets minimum amount of time before loader clears
-  minLoadLength: 125
+  minLoadLength: 125,
+
+  // default to font awesome class names
+  pristineClass: 'fa fa-upload',
+  loadingClass: 'fa fa-spinner fa-spin',
+  successClass: 'fa fa-thumbs-o-up',
+  failureClass: 'fa fa-thumbs-down'
 }, _temp);
