@@ -1,13 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 
 // utilities
-import cx from 'classnames';
 import shortId from 'shortid';
 import simpleIsoFetch from 'simple-iso-fetch';
 import request from 'superagent'; // needed because I can't figure out how to make s3 work with fetch
-
-// bring in styling
-import style from './index.scss'; // eslint-disable-line import/default
 
 // get rid of non-word characters
 const urlSafe = /\W/g;
@@ -29,7 +25,7 @@ const classLookup = {
 };
 
 
-export default class FileInput extends Component {
+module.exports = class FileInput extends Component {
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.object,
@@ -203,7 +199,7 @@ export default class FileInput extends Component {
     return (
       <label
         htmlFor={this.uniqueId}
-        className={cx(this.props.className, this.getLoaderClass(this.state.loadingState))}
+        className={`${this.props.className} ${this.getLoaderClass(this.state.loadingState)}`}
       >
         <input
           className={this.props.inputClassName}
@@ -212,10 +208,10 @@ export default class FileInput extends Component {
           accept={acceptableFileExtensions}
           onChange={this.onChange.bind(this, acceptableFileExtensions)}
           style={this.props.style}
-          name={style.fileUploader}
-          id={style.fileUploader}
+          name={this.uniqueId}
+          id={this.uniqueId}
         />
-        <span className={style.loaderMessage}>
+      <span className={this.props.loaderMessageClassName}>
           {this.state.loadMessage}
         </span>
       </label>

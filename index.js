@@ -1,18 +1,15 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _class, _temp;
+
+// utilities
+
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _classnames = require('classnames');
-
-var _classnames2 = _interopRequireDefault(_classnames);
 
 var _shortid = require('shortid');
 
@@ -26,10 +23,6 @@ var _superagent = require('superagent');
 
 var _superagent2 = _interopRequireDefault(_superagent);
 
-var _index = require('./index.scss');
-
-var _index2 = _interopRequireDefault(_index);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -40,13 +33,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// utilities
 // needed because I can't figure out how to make s3 work with fetch
-
-// bring in styling
-
-
-// eslint-disable-line import/default
 
 // get rid of non-word characters
 var urlSafe = /\W/g;
@@ -67,7 +54,7 @@ var classLookup = {
   failure: 'fa-thumbs-down'
 };
 
-var FileInput = function (_Component) {
+module.exports = (_temp = _class = function (_Component) {
   _inherits(FileInput, _Component);
 
   function FileInput(props, context) {
@@ -219,7 +206,7 @@ var FileInput = function (_Component) {
         'label',
         {
           htmlFor: this.uniqueId,
-          className: (0, _classnames2.default)(this.props.className, this.getLoaderClass(this.state.loadingState))
+          className: this.props.className + ' ' + this.getLoaderClass(this.state.loadingState)
         },
         _react2.default.createElement('input', (_React$createElement = {
           className: this.props.inputClassName,
@@ -227,10 +214,10 @@ var FileInput = function (_Component) {
           type: 'file',
           accept: acceptableFileExtensions,
           onChange: this.onChange.bind(this, acceptableFileExtensions)
-        }, _defineProperty(_React$createElement, 'style', this.props.style), _defineProperty(_React$createElement, 'name', _index2.default.fileUploader), _defineProperty(_React$createElement, 'id', _index2.default.fileUploader), _React$createElement)),
+        }, _defineProperty(_React$createElement, 'style', this.props.style), _defineProperty(_React$createElement, 'name', this.uniqueId), _defineProperty(_React$createElement, 'id', this.uniqueId), _React$createElement)),
         _react2.default.createElement(
           'span',
-          { className: _index2.default.loaderMessage },
+          { className: this.props.loaderMessageClassName },
           this.state.loadMessage
         )
       );
@@ -238,9 +225,7 @@ var FileInput = function (_Component) {
   }]);
 
   return FileInput;
-}(_react.Component);
-
-FileInput.propTypes = {
+}(_react.Component), _class.propTypes = {
   className: _react.PropTypes.string,
   style: _react.PropTypes.object,
 
@@ -263,12 +248,10 @@ FileInput.propTypes = {
 
   // specifies acceptable file types
   type: _react.PropTypes.oneOf(['image', 'video', 'document']), // abstraction
-  accept: _react.PropTypes.array };
-FileInput.defaultProps = {
+  accept: _react.PropTypes.array }, _class.defaultProps = {
   // 20MB I believe??
   maxSize: 41943040 * 20,
 
   // sets minimum amount of time before loader clears
   minLoadLength: 125
-};
-exports.default = FileInput;
+}, _temp);
