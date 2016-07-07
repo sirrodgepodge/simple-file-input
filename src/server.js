@@ -1,10 +1,27 @@
+///// @TODO use webpack to put this in a separate file
+
+import awsSdk from 'aws-sdk';
+import merge from 'lodash/merge';
+
+// concatenate 'prod' for production bucket
+const s3 = new awsSdk.S3();
+
+const config = {
+  s3Bucket: null,
+  hostUrl: `${s3.endpoint.protocol}//${s3.endpoint.hostname}/`
+}
+
+export const setBucket = bucket => {
+  config.s3Bucket = bucket;
+};
+
+/////
+
+
 import Promise from 'bluebird';
 
 // sharing instance so utility functions don't need to each make their own
-import s3, {config, setBucket as setBucketFunc} from './sharedS3Instance';
 s3.getSignedUrlAsync = Promise.promisify(s3.getSignedUrl);
-
-export const setBucket = setBucketFunc;
 
 export const signS3 = infoObj =>
   s3.getSignedUrlAsync('putObject', {
