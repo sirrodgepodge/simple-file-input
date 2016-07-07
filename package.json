@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "dead simple react component + server-side handler for s3 uploading from the front end (can also handle dataURI uploading which is useful for image uploads, can show uploaded image very quickly in UI)",
   "scripts": {
-    "build": "node ./gulp build",
-    "gitAddBuilt": "git add ./build/component.js; git add ./build/server.js"
+    "build": "gulp build",
+    "gitAddBuilt": "git add ./index.js; git add ./server.js"
   },
   "pre-commit": [
     "build",
