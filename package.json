@@ -1,0 +1,38 @@
+{
+  "name": "simple-file-input",
+  "version": "0.1.0",
+  "description": "dead simple react component + server-side handler for s3 uploading from the front end (can also handle dataURI uploading which is useful for image uploads, can show uploaded image very quickly in UI)",
+  "scripts": {
+    "build": "gulp build",
+    "gitAddBuilt": "git add ./build/component.js; git add ./build/server.js"
+  },
+  "pre-commit": [
+    "build",
+    "gitAddBuilt"
+  ],
+  "keywords": [
+    "aws",
+    "s3",
+    "react",
+    "file",
+    "input"
+  ],
+  "author": "sirRodgePodge",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.4.5",
+    "bluebird": "^3.4.1",
+    "react": "^15.2.0",
+    "shortid": "^2.2.6"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-0": "^6.3.13",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "pre-commit": "^1.1.3",
+    "require-dir": "^0.3.0"
+  }
+}
