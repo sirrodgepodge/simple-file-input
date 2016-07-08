@@ -3,16 +3,17 @@
 import merge from 'lodash.merge';
 
 // concatenate 'prod' for production bucket
-const s3 = {};
+export const s3 = {};
+export const initS3 = awsSdk => merge(s3, new awsSdk.S3());
 
+
+// vars required for s3 use
 const config = {
   s3Bucket: null,
   get hostUrl() {
     return s3.endpoint && `${s3.endpoint.protocol}//${s3.endpoint.hostname}/` || null;
   }
 }
-
-export const initS3 = awsSdk => merge(s3, new awsSdk.S3());
 
 export const setBucket = bucket => {
   config.s3Bucket = bucket;
