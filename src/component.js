@@ -211,8 +211,6 @@ module.exports = class FileInput extends Component {
   render() {
     const acceptableFileExtensions = this.props.accept || acceptableExtensionsMap[this.props.type].map(val => `.${val}`);
 
-    console.log(this.props.inputClass, !this.props.inputClass);
-
     return (
       <label
         htmlFor={this.uniqueId}

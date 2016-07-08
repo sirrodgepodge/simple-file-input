@@ -196,8 +196,6 @@ module.exports = (_temp = _class = function (_Component) {
         return '.' + val;
       });
 
-      console.log(this.props.inputClass, !this.props.inputClass);
-
       return _react2.default.createElement(
         'label',
         {
