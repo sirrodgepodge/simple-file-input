@@ -15,6 +15,10 @@ var _shortid = require('shortid');
 
 var _shortid2 = _interopRequireDefault(_shortid);
 
+var _lodash = require('lodash.merge');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _simpleIsoFetch = require('simple-iso-fetch');
 
 var _simpleIsoFetch2 = _interopRequireDefault(_simpleIsoFetch);

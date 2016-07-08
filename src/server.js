@@ -1,15 +1,16 @@
 ///// @TODO use webpack to put this in a separate file
 
-import awsSdk from 'aws-sdk';
-import merge from 'lodash/merge';
+import merge from 'lodash.merge';
 
 // concatenate 'prod' for production bucket
-const s3 = new awsSdk.S3();
+const s3 = {};
 
 const config = {
   s3Bucket: null,
   hostUrl: `${s3.endpoint.protocol}//${s3.endpoint.hostname}/`
 }
+
+export const initS3 = awsSdk => merge(s3, new awsSdk.S3());
 
 export const setBucket = bucket => {
   config.s3Bucket = bucket;

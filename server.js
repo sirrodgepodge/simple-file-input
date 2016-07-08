@@ -3,15 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.signS3 = exports.setBucket = undefined;
+exports.signS3 = exports.setBucket = exports.initS3 = undefined;
 
-var _awsSdk = require('aws-sdk');
+var _lodash = require('lodash.merge');
 
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-var _merge = require('lodash/merge');
-
-var _merge2 = _interopRequireDefault(_merge);
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _bluebird = require('bluebird');
 
@@ -20,13 +16,15 @@ var _bluebird2 = _interopRequireDefault(_bluebird);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // concatenate 'prod' for production bucket
-///// @TODO use webpack to put this in a separate file
-
-var s3 = new _awsSdk2.default.S3();
+var s3 = {}; ///// @TODO use webpack to put this in a separate file
 
 var config = {
   s3Bucket: null,
   hostUrl: s3.endpoint.protocol + '//' + s3.endpoint.hostname + '/'
+};
+
+var initS3 = exports.initS3 = function initS3(awsSdk) {
+  return (0, _lodash2.default)(s3, new awsSdk.S3());
 };
 
 var setBucket = exports.setBucket = function setBucket(bucket) {
