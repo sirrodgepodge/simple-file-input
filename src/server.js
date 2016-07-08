@@ -7,7 +7,9 @@ const s3 = {};
 
 const config = {
   s3Bucket: null,
-  hostUrl: `${s3.endpoint.protocol}//${s3.endpoint.hostname}/`
+  get hostUrl() {
+    return s3.endpoint && `${s3.endpoint.protocol}//${s3.endpoint.hostname}/` || null;
+  }
 }
 
 export const initS3 = awsSdk => merge(s3, new awsSdk.S3());

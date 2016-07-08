@@ -20,7 +20,9 @@ var s3 = {}; ///// @TODO use webpack to put this in a separate file
 
 var config = {
   s3Bucket: null,
-  hostUrl: s3.endpoint.protocol + '//' + s3.endpoint.hostname + '/'
+  get hostUrl() {
+    return s3.endpoint && s3.endpoint.protocol + '//' + s3.endpoint.hostname + '/' || null;
+  }
 };
 
 var initS3 = exports.initS3 = function initS3(awsSdk) {
