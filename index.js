@@ -29,8 +29,6 @@ var _superagent2 = _interopRequireDefault(_superagent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -192,8 +190,6 @@ module.exports = (_temp = _class = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _React$createElement;
-
       var acceptableFileExtensions = this.props.accept || acceptableExtensionsMap[this.props.type].map(function (val) {
         return '.' + val;
       });
@@ -204,18 +200,24 @@ module.exports = (_temp = _class = function (_Component) {
         'label',
         {
           htmlFor: this.uniqueId,
-          className: 'simple-file-input-container ' + this.props.className + ' ' + this.props[this.state.loadingState + 'Class']
+          className: 'simple-file-input-container ' + (this.props.className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
+          style: this.props.style
         },
-        _react2.default.createElement('input', (_React$createElement = {
-          className: 'simple-file-input-input ' + this.props.inputClass,
-          style: !this.props.inputClass && { display: 'none !important' },
+        _react2.default.createElement('input', {
+          className: 'simple-file-input-input ' + (this.props.inputClass || ''),
+          style: (0, _lodash2.default)(!this.props.inputClass && { display: 'none !important' }, this.props.inputStyle),
           type: 'file',
           accept: acceptableFileExtensions,
-          onChange: this.onChange.bind(this, acceptableFileExtensions)
-        }, _defineProperty(_React$createElement, 'style', this.props.style), _defineProperty(_React$createElement, 'name', this.uniqueId), _defineProperty(_React$createElement, 'id', this.uniqueId), _React$createElement)),
+          onChange: this.onChange.bind(this, acceptableFileExtensions),
+          name: this.uniqueId,
+          id: this.uniqueId
+        }),
         _react2.default.createElement(
           'span',
-          { className: 'simple-file-input-message ' + this.props.messageClass },
+          {
+            className: 'simple-file-input-message ' + (this.props.messageClass || ''),
+            style: this.props.messageStyle
+          },
           this.state.loadMessage
         )
       );
@@ -224,18 +226,19 @@ module.exports = (_temp = _class = function (_Component) {
 
   return FileInput;
 }(_react.Component), _class.propTypes = {
+  // styling
   className: _react.PropTypes.string,
   style: _react.PropTypes.object,
+  inputClass: _react.PropTypes.string,
+  inputStyle: _react.PropTypes.object,
+  messageClass: _react.PropTypes.string,
+  messageStyle: _react.PropTypes.object,
 
   // loading state classes
   pristineClass: _react.PropTypes.string,
   loadingClass: _react.PropTypes.string,
   successClass: _react.PropTypes.string,
   failureClass: _react.PropTypes.string,
-
-  // child element classes
-  inputClass: _react.PropTypes.string,
-  messageClass: _react.PropTypes.string,
 
   // initial icon state
   initialLoadState: _react.PropTypes.string,
@@ -262,6 +265,11 @@ module.exports = (_temp = _class = function (_Component) {
 
   // sets minimum amount of time before loader clears
   minLoadLength: 125,
+
+  // default style objects to empty object
+  style: {},
+  inputStyle: {},
+  messageStyle: {},
 
   // default to font awesome class names
   pristineClass: 'fa fa-upload',

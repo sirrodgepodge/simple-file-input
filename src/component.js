@@ -20,19 +20,20 @@ const acceptableExtensionsMap = {
 
 module.exports = class FileInput extends Component {
   static propTypes = {
+    // styling
     className: PropTypes.string,
     style: PropTypes.object,
+    inputClass: PropTypes.string,
+    inputStyle: PropTypes.object,
+    messageClass: PropTypes.string,
+    messageStyle: PropTypes.object,
 
     // loading state classes
     pristineClass: PropTypes.string,
     loadingClass: PropTypes.string,
     successClass: PropTypes.string,
     failureClass: PropTypes.string,
-
-    // child element classes
-    inputClass: PropTypes.string,
-    messageClass: PropTypes.string,
-
+    
     // initial icon state
     initialLoadState: PropTypes.string,
 
@@ -61,6 +62,11 @@ module.exports = class FileInput extends Component {
 
     // sets minimum amount of time before loader clears
     minLoadLength: 125,
+
+    // default style objects to empty object
+    style: {},
+    inputStyle: {},
+    messageStyle: {},
 
     // default to font awesome class names
     pristineClass: 'fa fa-upload',
@@ -210,19 +216,22 @@ module.exports = class FileInput extends Component {
     return (
       <label
         htmlFor={this.uniqueId}
-        className={`simple-file-input-container ${this.props.className} ${this.props[`${this.state.loadingState}Class`]}`}
+        className={`simple-file-input-container ${this.props.className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
+        style={this.props.style}
       >
         <input
-          className={`simple-file-input-input ${this.props.inputClass}`}
-          style={!this.props.inputClass && {display: 'none !important'}}
+          className={`simple-file-input-input ${this.props.inputClass || ''}`}
+          style={merge(!this.props.inputClass && {display: 'none !important'}, this.props.inputStyle)}
           type='file'
           accept={acceptableFileExtensions}
           onChange={this.onChange.bind(this, acceptableFileExtensions)}
-          style={this.props.style}
           name={this.uniqueId}
           id={this.uniqueId}
         />
-      <span className={`simple-file-input-message ${this.props.messageClass}`}>
+      <span
+        className={`simple-file-input-message ${this.props.messageClass || ''}`}
+        style={this.props.messageStyle}
+      >
           {this.state.loadMessage}
         </span>
       </label>
