@@ -1,5 +1,7 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _class, _temp;
@@ -205,7 +207,7 @@ module.exports = (_temp = _class = function (_Component) {
         },
         _react2.default.createElement('input', {
           className: 'simple-file-input-input ' + (this.props.inputClass || ''),
-          style: (0, _lodash2.default)(!this.props.inputClass && { display: 'none !important' }, this.props.inputStyle),
+          style: _extends({}, !this.props.inputClass && { display: 'none' } || {}, this.props.inputStyle),
           type: 'file',
           accept: acceptableFileExtensions,
           onChange: this.onChange.bind(this, acceptableFileExtensions),

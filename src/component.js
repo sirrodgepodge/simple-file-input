@@ -33,7 +33,7 @@ module.exports = class FileInput extends Component {
     loadingClass: PropTypes.string,
     successClass: PropTypes.string,
     failureClass: PropTypes.string,
-    
+
     // initial icon state
     initialLoadState: PropTypes.string,
 
@@ -221,7 +221,10 @@ module.exports = class FileInput extends Component {
       >
         <input
           className={`simple-file-input-input ${this.props.inputClass || ''}`}
-          style={merge(!this.props.inputClass && {display: 'none !important'}, this.props.inputStyle)}
+          style={{
+            ...(!this.props.inputClass && {display: 'none'} || {}),
+            ...this.props.inputStyle
+          }}
           type='file'
           accept={acceptableFileExtensions}
           onChange={this.onChange.bind(this, acceptableFileExtensions)}
