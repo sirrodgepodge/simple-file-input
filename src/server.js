@@ -1,10 +1,16 @@
 ///// @TODO use webpack to put this in a separate file
 
 import merge from 'lodash.merge';
+import Promise from 'bluebird';
 
 // concatenate 'prod' for production bucket
 export const s3 = {};
-export const initS3 = awsSdk => merge(s3, new awsSdk.S3());
+export const initS3 = awsSdk => {
+  merge(s3, new awsSdk.S3());
+
+  // promisifying used methods
+  s3.getSignedUrlAsync = Promise.promisify(s3.getSignedUrl);
+}
 
 
 // vars required for s3 use
@@ -21,11 +27,6 @@ export const setBucket = bucket => {
 
 /////
 
-
-import Promise from 'bluebird';
-
-// sharing instance so utility functions don't need to each make their own
-s3.getSignedUrlAsync = Promise.promisify(s3.getSignedUrl);
 
 export const signS3 = infoObj =>
   s3.getSignedUrlAsync('putObject', {

@@ -16,10 +16,14 @@ var _bluebird2 = _interopRequireDefault(_bluebird);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // concatenate 'prod' for production bucket
-var s3 = exports.s3 = {}; ///// @TODO use webpack to put this in a separate file
+///// @TODO use webpack to put this in a separate file
 
+var s3 = exports.s3 = {};
 var initS3 = exports.initS3 = function initS3(awsSdk) {
-  return (0, _lodash2.default)(s3, new awsSdk.S3());
+  (0, _lodash2.default)(s3, new awsSdk.S3());
+
+  // promisifying used methods
+  s3.getSignedUrlAsync = _bluebird2.default.promisify(s3.getSignedUrl);
 };
 
 // vars required for s3 use
@@ -35,9 +39,6 @@ var setBucket = exports.setBucket = function setBucket(bucket) {
 };
 
 /////
-
-// sharing instance so utility functions don't need to each make their own
-s3.getSignedUrlAsync = _bluebird2.default.promisify(s3.getSignedUrl);
 
 var signS3 = exports.signS3 = function signS3(infoObj) {
   return s3.getSignedUrlAsync('putObject', {
