@@ -33,7 +33,7 @@ To make requests you just need to need to make an instance of SimpleIsoFetch and
 Here are all the available props with corresponding descriptions of what they do in the comment to their right
 
 ```js
-static propTypes = {
+propTypes = {
   // styling
   className: PropTypes.string,        // sets className of the root <label/> element
   style: PropTypes.object,            // styling object passed to the root <label/> element
