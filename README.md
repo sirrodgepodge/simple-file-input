@@ -64,7 +64,7 @@ require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
 
 ### Express route set up
 
-```
+```js
 // importing Express and middlewate
 import Express from 'express';
 import bodyParser from 'body-parser';
