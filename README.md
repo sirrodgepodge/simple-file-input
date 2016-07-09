@@ -65,7 +65,7 @@ require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
 * S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
 * CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
 
-If you just want to get something working, feel free to use the following,
+If you just want to get something working, feel free to use the following (replace "YOUR_BUCKET_NAME_GOES_HERE" with your actual bucket name),
 * Bucket Policy:
 ```
 {
