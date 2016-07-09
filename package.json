@@ -1,6 +1,6 @@
 {
   "name": "simple-file-input",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "dead simple react component + server-side handler for s3 uploading from the front end (can also handle dataURI uploading which is useful for image uploads, can show uploaded image very quickly in UI)",
   "scripts": {
     "build": "gulp build",
@@ -17,6 +17,10 @@
     "file",
     "input"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirrodgepodge/simple-file-input.git"
+  },
   "author": "sirRodgePodge",
   "license": "MIT",
   "homepage": "https://github.com/sirrodgepodge/simple-file-input#readme",
