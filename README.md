@@ -67,6 +67,7 @@ require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
 
 If you just want to get something working, feel free to use the following,
 * Bucket Policy:
+```
 {
 	"Version": "2012-10-17",
 	"Id": "Policy1442337235961",
@@ -80,7 +81,9 @@ If you just want to get something working, feel free to use the following,
 		}
 	]
 }
+```
 * CORS Policy:
+```
 <?xml version="1.0" encoding="UTF-8"?>
 <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
     <CORSRule>
@@ -92,6 +95,7 @@ If you just want to get something working, feel free to use the following,
         <AllowedHeader>*</AllowedHeader>
     </CORSRule>
 </CORSConfiguration>
+```
 
 
 
