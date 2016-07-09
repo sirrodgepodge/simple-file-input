@@ -63,7 +63,7 @@ awsSdk.config.update({
 simpleFileInput.initS3(awsSdk);
 
 // set the name of the bucket to be used by S3
-require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
+simpleFileInput.setBucket(process.env.AWS_BUCKET);
 ```
 
 ### Express route set up
