@@ -20,6 +20,7 @@ import SimpleFileInput from 'simple-file-input';
   signingRoute='/sign'
   onS3Load={(err, fileName) => this.handleChange('documentFile', fileName)}
 />
+```
 
 ## Server Side
 
