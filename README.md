@@ -1,5 +1,5 @@
 # simple-file-input
-working with S3 sucks! Let this nifty little library handle it for you with a React component and server side helper function :) 
+working with the file API and S3 sucks! Let this nifty little library handle it for you with a React component and server side helper function :) 
 
 [![NPM][nodei-image]][nodei-url]
 
@@ -44,8 +44,8 @@ You must start by configuring AWS as usual, I'm using 'dotenv' here for environm
 // attach environmental vars from ".env" file to process.env
 require('dotenv').config();
 
-const awsSdk = require('aws-sdk');
-const simpleFileInput = require('simple-file-input/server');
+import awsSdk from 'aws-sdk';
+import simpleFileInput from 'simple-file-input/server';
 
 // Configure AWS SDK (Using simple-file-input will depend on you having provided these three configuration properties)
 awsSdk.config.update({
@@ -59,6 +59,25 @@ simpleFileInput.initS3(awsSdk);
 
 // set the name of the bucket to be used by S3
 require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
+
+
+// importing Express and middlewate
+import Express from 'express';
+import bodyParser from 'body-parser';
+
+// importing server-side helper promise for sending s3 signature to front end
+import {signS3} from 'simple-file-input/server';
+
+// create express instance, set request body parsing middleware
+const app = Express();
+app.use(bodyParser.json())); // parses JSON objects sent in request bodies
+
+// catch post requests to '/sign' here and respond with s3 signature
+app.post('/sign', (req, res, next) =>
+  signS3(req.body) // helper function handles creation of S3 signature for you
+    .then(data => res.json(data))
+    .catch(err => next(err))
+);
 ```
 *Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things:
 * S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
