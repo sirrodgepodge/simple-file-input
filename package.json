@@ -19,6 +19,7 @@
   ],
   "author": "sirRodgePodge",
   "license": "MIT",
+  "homepage": "https://github.com/sirrodgepodge/simple-file-input#readme",
   "dependencies": {
     "bluebird": "^3.4.1",
     "lodash.merge": "^4.4.0",
