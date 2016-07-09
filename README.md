@@ -5,23 +5,65 @@ working with S3 sucks! Let this nifty little library handle it for you with a Re
 
 # 'Hello World' Example
 ## Client Side
+The client-side set up just involves dropping in the SimpleFileInput component, and setting functions to be fired in response to either blob upload completion, s3 upload completion (if used must specify the "signingRoute" to hit for S3 signature, see helper below), or both.
 ```js
 import SimpleFileInput from 'simple-file-input';
 
-<SimpleFileInput
-  type='document'
-  signingRoute='/sign'
-  onS3Load={(err, fileName) => this.handleChange('documentFile', fileName)}
-/>
+class YourReactComponentWhichIncludesAnUploader {
+  state = {
+    imageSrc: ''
+  }
+
+  handleChange = (newImageSrc) {
+    this.setState({
+      imageSrc: newImageSrc
+    });
+  }
+  
+  render() {
+    return <div>
+      <img
+        src={this.state.imageSrc}
+      />
+      <SimpleFileInput
+        type='image'
+        signingRoute='/sign'
+        onBlobLoad={(err, dataURI) => this.handleChange(dataURI)}
+        onS3Load={(err, fileName) => this.handleChange(fileName)}
+      />
+    </div>;
+  }
+}
 ```
 
 ## Server Side
+*Note:* Server-side set up is only needed for uploading to S3, if you wanted to just use the blob upload on the component no server-side configuration would be necessary.
 
+You must start by configuring AWS as usual, I'm using 'dotenv' here for environmental variables and storing them in a separate '.env' file but you can use whatever you'd like of course.
+``` js
+// attach environmental vars from ".env" file to process.env
+require('dotenv').config();
 
+const awsSdk = require('aws-sdk');
+const simpleFileInput = require('simple-file-input/server');
 
-# Client side
-To make requests you just need to need to make an instance of SimpleIsoFetch and then can use your standard 'get', 'put', 'post', 'del', and 'patch' methods.  If you're server-side you need to set the host because node-fetch can't determine the base route
+// Configure AWS SDK (Using simple-file-input will depend on you having provided these three configuration properties)
+awsSdk.config.update({
+  accessKeyId: process.env.AWS_CLIENT_ID,
+  secretAccessKey: process.env.AWS_SECRET,
+  region: process.env.AWS_REGION
+});
 
+// initialize simple-file-input's S3 instance by passing in your current aws-sdk instance
+simpleFileInput.initS3(awsSdk);
+
+// set the name of the bucket to be used by S3
+require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
+```
+*Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things
+S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
+S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
+CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
 
 # Full Component Props API
 Here are all the available props with corresponding descriptions of what they do in the comment to their right
