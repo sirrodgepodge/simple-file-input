@@ -35,10 +35,10 @@ module.exports = class FileInput extends Component {
     failureClass: PropTypes.string,
 
     // initial icon state
-    initialLoadState: PropTypes.string,
+    initialLoadState: PropTypes.string.oneOf(['pristing', 'loading', 'success', 'failure']),
 
     // helps smooth aesthetic
-    minLoadLength: PropTypes.number,
+    minLoadTime: PropTypes.number,
 
     // maximum file size (in bytes)
     maxSize: PropTypes.number,
@@ -52,16 +52,16 @@ module.exports = class FileInput extends Component {
     signingRoute: PropTypes.string,
 
     // specifies acceptable file types
-    type: PropTypes.oneOf(['image', 'video', 'document']), // abstraction
+    type: PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
     accept: PropTypes.array, // allow user to specify extensions
   }
 
   static defaultProps = {
-    // 20MB I believe??
-    maxSize: 41943040 * 20,
+    // 100MB (unit is bytes)
+    maxSize: 100000000,
 
     // sets minimum amount of time before loader clears
-    minLoadLength: 125,
+    minLoadTime: 125,
 
     // default style objects to empty object
     style: {},
@@ -75,16 +75,12 @@ module.exports = class FileInput extends Component {
     failureClass: 'fa fa-thumbs-down'
   }
 
-  constructor(props, context) {
-    super(props, context);
-
-    this.uniqueId = shortId.generate();
-  }
-
   state = {
     loadingState: this.props.initialLoadState || 'pristine',
     loadMessage: ''
   }
+
+  uniqueId = shortId.generate()
 
   onChange = (acceptableFileExtensions, event) => {
     // handle cancel
@@ -109,11 +105,11 @@ module.exports = class FileInput extends Component {
       type = fileObj.type,
       size = fileObj.size;
 
-    if(size > this.props.maxSize) this.assetUploadStateHandler(startTime)(new Error('upload is not acceptable file type'), null);
-    if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) this.assetUploadStateHandler(startTime)(new Error('upload is not acceptable file type'), null);
+    if(size > this.props.maxSize) return this.assetUploadStateHandler(startTime)(new Error(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`), null);
+    if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return this.assetUploadStateHandler(startTime)(new Error(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`), null);
     else {
-      // // Handles immediate display of images/videos with 'blob'
-      if(this.onBlobLoad && ~['image', 'video'].indexOf(this.props.type)) {
+      // // Handles immediate return of Data URI
+      if(this.props.onBlobLoad && typeof onBlobLoad === 'function') {
         const reader = new FileReader();
         reader.readAsDataURL(fileObj);
 
@@ -121,19 +117,19 @@ module.exports = class FileInput extends Component {
         reader.onerror = err => {
           if(!this.props.onS3Load || !this.props.signingRoute)
             this.assetUploadStateHandler(startTime)(err, null);
-          this.onBlobLoad(err, null);
+          this.props.onBlobLoad(err, null);
         };
 
         // sends blob to callback
         reader.onloadend = e => {
           if(!this.props.onS3Load || !this.props.signingRoute)
             this.assetUploadStateHandler(startTime)(null, e.target.result);
-          this.onBlobLoad(null, e.target.result);
+          this.props.onBlobLoad(null, e.target.result);
         };
       }
 
       // // Handles S3 storage
-      if(this.props.onS3Load) {
+      if(this.props.onS3Load && typeof this.props.onS3Load === 'function') {
         // warn if no upload string provided
         if(typeof this.props.signingRoute !== 'string')
           return console.error('need to supply signing route to use s3!');
@@ -188,12 +184,12 @@ module.exports = class FileInput extends Component {
       });
     } else if (data) {
       // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
-      setTimeout(() => {
-        this.setState({
-          loadingState: 'success',
-          loadMessage: 'Upload Success!'
-        });
-      }, Math.min(+new Date - startTime, this.props.minLoadLength));
+      const waitTime = Math.max(0, this.props.minLoadTime - +new Date + startTime);
+      if(waitTime) {
+        setTimeout(this.setSuccess, waitTime);
+      } else {
+        this.setSuccess();
+      }
     } else {
       // update loader to failure
       this.setState({
@@ -203,25 +199,55 @@ module.exports = class FileInput extends Component {
     }
   };
 
+  setSuccess = () => {
+    this.setState({
+      loadingState: 'success',
+      loadMessage: 'Upload Success!'
+    });
+  }
+
   getLoaderClass(loadingState) {
     const propsClass = this.props[`${loadingState}Class`];
     return propsClass || `fa ${classLookup[this.state.loadingState]}`;
   }
 
   render() {
-    const acceptableFileExtensions = this.props.accept || acceptableExtensionsMap[this.props.type].map(val => `.${val}`);
+    const {
+      className,
+      style,
+      inputClass,
+      inputStyle,
+      messageClass,
+      messageStyle,
+      pristineClass,
+      loadingClass,
+      successClass,
+      failureClass,
+      initialLoadState,
+      minLoadTime,
+      maxSize,
+      onBlobLoad,
+      onS3Load,
+      signingRoute,
+      accept,
+      type,
+      ...otherProps
+    } = this.props;
+
+    const acceptableFileExtensions = accept || acceptableExtensionsMap[type].map(val => `.${val}`);
 
     return (
       <label
         htmlFor={this.uniqueId}
-        className={`simple-file-input-container ${this.props.className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
-        style={this.props.style}
+        className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
+        style={style}
+        {...otherProps}
       >
         <input
-          className={`simple-file-input-input ${this.props.inputClass || ''}`}
+          className={`simple-file-input-input ${inputClass || ''}`}
           style={{
-            ...(!this.props.inputClass && {display: 'none'} || {}),
-            ...this.props.inputStyle
+            ...(!inputClass && {display: 'none'} || {}),
+            ...inputStyle
           }}
           type='file'
           accept={acceptableFileExtensions}
@@ -230,8 +256,8 @@ module.exports = class FileInput extends Component {
           id={this.uniqueId}
         />
       <span
-        className={`simple-file-input-message ${this.props.messageClass || ''}`}
-        style={this.props.messageStyle}
+        className={`simple-file-input-message ${messageClass || ''}`}
+        style={messageStyle}
       >
           {this.state.loadMessage}
         </span>
