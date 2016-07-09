@@ -83,7 +83,9 @@ app.post('/sign', (req, res, next) =>
     .catch(err => next(err))
 );
 ```
-*Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things:
+
+### S3 Bucket set up
+*Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  You can set these after creating an S3 bucket by selecting "Properties" and then "Permissions" on that bucket.  Here are AWS's tools and docs for these two things:
 * S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
 * S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
 * CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
