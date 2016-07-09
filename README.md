@@ -7,5 +7,5 @@ working with S3 sucks! Let this nifty little library handle it for you with a Re
 
   [MIT](LICENSE)
 
-[nodei-image]: https://nodei.co/npm/simple-iso-fetch.png?downloads=true&downloadRank=true&stars=true
-[nodei-url]: https://www.npmjs.com/package/simple-iso-fetch
+[nodei-image]: https://nodei.co/npm/simple-file-input.png?downloads=true&downloadRank=true&stars=true
+[nodei-url]: https://www.npmjs.com/package/simple-file-input
