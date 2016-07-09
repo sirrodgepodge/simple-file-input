@@ -61,9 +61,9 @@ simpleFileInput.initS3(awsSdk);
 require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
 ```
 *Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things
-S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
-S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
-CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
+  S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
+  S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
+  CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
 
 # Full Component Props API
 Here are all the available props with corresponding descriptions of what they do in the comment to their right
