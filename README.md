@@ -60,10 +60,40 @@ simpleFileInput.initS3(awsSdk);
 // set the name of the bucket to be used by S3
 require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
 ```
-*Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things
+*Note*: In order for S3 uploading to work you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  Here are AWS's tools and docs for these two things:
 * S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
 * S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
 * CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
+
+If you just want to get something working, feel free to use the following,
+* Bucket Policy:
+{
+	"Version": "2012-10-17",
+	"Id": "Policy1442337235961",
+	"Statement": [
+		{
+			"Sid": "Stmt1442337233076",
+			"Effect": "Allow",
+			"Principal": "*",
+			"Action": "s3:*",
+			"Resource": "arn:aws:s3:::YOUR_BUCKET_NAME_GOES_HERE/*"
+		}
+	]
+}
+* CORS Policy:
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedMethod>PUT</AllowedMethod>
+        <AllowedMethod>DELETE</AllowedMethod>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
+
+
 
 # Full Component Props API
 Here are all the available props with corresponding descriptions of what they do in the comment to their right
