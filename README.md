@@ -1,5 +1,5 @@
 # simple-file-input
-dead simple react component + server-side handler for s3 uploading from the front end (can also handle dataURI uploading which is useful for image uploads, can show uploaded image very quickly in UI)
+working with S3 sucks! Let this nifty little library handle it for you with a React component and server side helper function :) 
 
 [![NPM][nodei-image]][nodei-url]
 
