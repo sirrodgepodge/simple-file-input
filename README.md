@@ -173,6 +173,8 @@ static propTypes = {
   //  document: ['pdf', 'doc', 'docx', 'pages'],
   //  spreadsheet: ['xls', 'xlsx', 'numbers', 'csv']
   // }
+  
+  // any other props provided will be applied to root <label/> component
 }
 ```
 
