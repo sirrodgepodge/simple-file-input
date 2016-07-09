@@ -151,7 +151,7 @@ static propTypes = {
   initialLoadState: PropTypes.string.oneOf(['pristing', 'loading', 'success', 'failure']), // sets the initial state of the loading element (only determines which of the classes will be added at the beginning, "pristine" by default)
   
   // helps smooth aesthetic
-  minLoadLength: PropTypes.number,    // sets the minimum amount of time the loading status will be displayed (in milliseconds), used to prevent flashing between status icons/classes for really quick uploads, 125 by default
+  minLoadTime: PropTypes.number,    // sets the minimum amount of time the loading status will be displayed (in milliseconds), used to prevent flashing between status icons/classes for really quick uploads, 125 by default
   
   // max file size (in bytes)
   maxSize: PropTypes.number,          // sets the maximum file upload size (in bytes), default is 100000000 (100 MB)
@@ -173,6 +173,8 @@ static propTypes = {
   //  document: ['pdf', 'doc', 'docx', 'pages'],
   //  spreadsheet: ['xls', 'xlsx', 'numbers', 'csv']
   // }
+  
+  // any other props provided will be applied to root <label/> component
 }
 ```
 
