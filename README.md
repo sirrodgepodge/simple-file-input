@@ -39,7 +39,8 @@ class YourReactComponentWhichIncludesAnUploader {
 ## Server Side
 *Note:* Server-side set up is only needed for uploading to S3, if you wanted to just use the blob upload on the component no server-side configuration would be necessary.
 
-You must start by configuring AWS as usual, I'm using 'dotenv' here for environmental variables and storing them in a separate '.env' file but you can use whatever you'd like of course.
+### AWS Config
+You must start by configuring AWS as always when working with it, I'm using 'dotenv' here for environmental variables and storing them in a separate '.env' file but you can use whatever you'd like of course.
 ``` js
 // attach environmental vars from ".env" file to process.env
 require('dotenv').config();
@@ -59,8 +60,11 @@ simpleFileInput.initS3(awsSdk);
 
 // set the name of the bucket to be used by S3
 require('simple-file-input/server').setBucket(process.env.AWS_BUCKET);
+```
 
+### Express route set up
 
+```
 // importing Express and middlewate
 import Express from 'express';
 import bodyParser from 'body-parser';
@@ -72,7 +76,7 @@ import {signS3} from 'simple-file-input/server';
 const app = Express();
 app.use(bodyParser.json())); // parses JSON objects sent in request bodies
 
-// catch post requests to '/sign' here and respond with s3 signature
+// receive the post request to '/sign' that will come from our client-side component here and respond with s3 signature
 app.post('/sign', (req, res, next) =>
   signS3(req.body) // helper function handles creation of S3 signature for you
     .then(data => res.json(data))
