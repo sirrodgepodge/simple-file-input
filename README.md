@@ -37,6 +37,7 @@ class YourReactComponentWhichIncludesAnUploader {
 ```
 
 ## Server Side
+I've included helpers to configure AWS+S3 server-side and for generating S3 signatures needed to upload to S3 from the front end, enjoy! :).
 *Note:* Server-side set up is only needed for uploading to S3, if you wanted to just use the blob upload on the component no server-side configuration would be necessary.
 
 ### AWS Initializing
