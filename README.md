@@ -40,7 +40,9 @@ class YourReactComponentWhichIncludesAnUploader {
 *Note:* Server-side set up is only needed for uploading to S3, if you wanted to just use the blob upload on the component no server-side configuration would be necessary.
 
 ### AWS Initializing
-You must start by configuring AWS as always when working with it, I'm using 'dotenv' here for environmental variables and storing them in a separate '.env' file but you can use whatever you'd like of course.
+*Note:* Make SURE you don't upload your AWS credentials to Github, malicious programs are constantly crawling Github to find people who have done this and use their creds to spin up tons of EC2 Instances to mine bitcoin or other nasty things.
+
+You must start by configuring AWS as always when working with it, I'm using 'dotenv' here for environmental variables and storing them in a separate '.env' file but you can use whatever you'd like of course.  
 ``` js
 // attach environmental vars from ".env" file to process.env
 require('dotenv').config();
