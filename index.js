@@ -17,10 +17,6 @@ var _shortid = require('shortid');
 
 var _shortid2 = _interopRequireDefault(_shortid);
 
-var _lodash = require('lodash.merge');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _simpleIsoFetch = require('simple-iso-fetch');
 
 var _simpleIsoFetch2 = _interopRequireDefault(_simpleIsoFetch);
@@ -267,7 +263,7 @@ module.exports = (_temp2 = _class = function (_Component) {
   failureClass: _react.PropTypes.string,
 
   // initial icon state
-  initialLoadState: _react.PropTypes.string.oneOf(['pristing', 'loading', 'success', 'failure']),
+  initialLoadState: _react.PropTypes.oneOf(['pristine', 'loading', 'success', 'failure']),
 
   // helps smooth aesthetic
   minLoadTime: _react.PropTypes.number,

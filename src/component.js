@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 
 // utilities
 import shortId from 'shortid';
-import merge from 'lodash.merge';
 import simpleIsoFetch from 'simple-iso-fetch';
 import request from 'superagent'; // needed because I can't figure out how to make s3 work with fetch
 
@@ -35,7 +34,7 @@ module.exports = class FileInput extends Component {
     failureClass: PropTypes.string,
 
     // initial icon state
-    initialLoadState: PropTypes.string.oneOf(['pristing', 'loading', 'success', 'failure']),
+    initialLoadState: PropTypes.oneOf(['pristine', 'loading', 'success', 'failure']),
 
     // helps smooth aesthetic
     minLoadTime: PropTypes.number,
