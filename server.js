@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.signS3 = exports.setBucket = exports.initS3 = exports.s3 = undefined;
+exports.signUploadToS3 = exports.setBucket = exports.initS3 = exports.s3 = undefined;
 
 var _lodash = require('lodash.merge');
 
@@ -15,10 +15,12 @@ var _bluebird2 = _interopRequireDefault(_bluebird);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// concatenate 'prod' for production bucket
-///// @TODO use webpack to put this in a separate file
+// // Configuration
 
+// declare exportable s3 object
 var s3 = exports.s3 = {};
+
+// use this function to initialize s3 bucket on previously declared object
 var initS3 = exports.initS3 = function initS3(awsSdk) {
   (0, _lodash2.default)(s3, new awsSdk.S3());
 
@@ -34,23 +36,30 @@ var config = {
   }
 };
 
+// use this function to set s3 bucket
 var setBucket = exports.setBucket = function setBucket(bucket) {
   config.s3Bucket = bucket;
 };
 
-/////
+// // Helper Functions
 
-var signS3 = exports.signS3 = function signS3(infoObj) {
+// helper for uploading to S3
+var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3(infoObj, _ref) {
+  var name = _ref.name;
+  var expires = _ref.expires;
+  var bucket = _ref.bucket;
+  var isPrivate = _ref.isPrivate;
+  var acl = _ref.acl;
   return s3.getSignedUrlAsync('putObject', {
-    Bucket: config.s3Bucket || infoObj.bucket,
-    Key: infoObj.name,
-    Expires: 60,
+    Bucket: config.s3Bucket || bucket || console.log('Error: no bucket provided via \'setBucket\' helper or options object') || null,
+    Key: name || infoObj.name,
+    Expires: expires || 60,
     ContentType: infoObj.type,
-    ACL: 'public-read'
+    ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
   }).then(function (data) {
     return _bluebird2.default.resolve({
       signed_request: data,
-      url: '' + config.hostUrl + (config.s3Bucket || infoObj.bucket) + '/' + infoObj.name
+      url: '' + config.hostUrl + (config.s3Bucket || bucket) + '/' + infoObj.name
     });
   }).catch(function (err) {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);

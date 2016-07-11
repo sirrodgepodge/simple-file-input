@@ -1,17 +1,18 @@
-///// @TODO use webpack to put this in a separate file
-
 import merge from 'lodash.merge';
 import Promise from 'bluebird';
 
-// concatenate 'prod' for production bucket
+// // Configuration
+
+// declare exportable s3 object
 export const s3 = {};
+
+// use this function to initialize s3 bucket on previously declared object
 export const initS3 = awsSdk => {
   merge(s3, new awsSdk.S3());
 
   // promisifying used methods
   s3.getSignedUrlAsync = Promise.promisify(s3.getSignedUrl);
-}
-
+};
 
 // vars required for s3 use
 const config = {
@@ -19,26 +20,28 @@ const config = {
   get hostUrl() {
     return s3.endpoint && `${s3.endpoint.protocol}//${s3.endpoint.hostname}/` || null;
   }
-}
+};
 
+// use this function to set s3 bucket
 export const setBucket = bucket => {
   config.s3Bucket = bucket;
 };
 
-/////
 
+// // Helper Functions
 
-export const signS3 = infoObj =>
+// helper for uploading to S3
+export const signUploadToS3 = (infoObj, {name, expires, bucket, isPrivate, acl}) =>
   s3.getSignedUrlAsync('putObject', {
-    Bucket: config.s3Bucket || infoObj.bucket,
-    Key: infoObj.name,
-    Expires: 60,
+    Bucket: config.s3Bucket || bucket || console.log(`Error: no bucket provided via 'setBucket' helper or options object`) || null,
+    Key: name || infoObj.name,
+    Expires: expires || 60,
     ContentType: infoObj.type,
-    ACL: 'public-read'
+    ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
   })
   .then(data => Promise.resolve({
     signed_request: data,
-    url: `${config.hostUrl}${(config.s3Bucket || infoObj.bucket)}/${infoObj.name}`
+    url: `${config.hostUrl}${(config.s3Bucket || bucket)}/${infoObj.name}`
   }))
   .catch(err => {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);
