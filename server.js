@@ -44,7 +44,9 @@ var setBucket = exports.setBucket = function setBucket(bucket) {
 // // Helper Functions
 
 // helper for uploading to S3
-var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3(infoObj, _ref) {
+var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3(infoObj) {
+  var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
   var name = _ref.name;
   var expires = _ref.expires;
   var bucket = _ref.bucket;

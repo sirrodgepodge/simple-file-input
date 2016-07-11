@@ -31,7 +31,7 @@ export const setBucket = bucket => {
 // // Helper Functions
 
 // helper for uploading to S3
-export const signUploadToS3 = (infoObj, {name, expires, bucket, isPrivate, acl}) =>
+export const signUploadToS3 = (infoObj, {name, expires, bucket, isPrivate, acl} = {}) =>
   s3.getSignedUrlAsync('putObject', {
     Bucket: config.s3Bucket || bucket || console.log(`Error: no bucket provided via 'setBucket' helper or options object`) || null,
     Key: name || infoObj.name,
