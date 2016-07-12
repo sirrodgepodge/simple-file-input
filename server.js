@@ -56,27 +56,40 @@ var getObjectUrl = function getObjectUrl(bucket, name) {
 // // Helper Functions
 
 // helper for uploading to S3
-var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3(infoObj) {
-  var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
+  var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-  var name = _ref.name;
-  var expires = _ref.expires;
-  var bucket = _ref.bucket;
-  var isPrivate = _ref.isPrivate;
-  var acl = _ref.acl;
+  var reqName = _ref.name;
+  var type = _ref.type;
 
-  if (!s3.getSignedUrlAsync) return console.log('Need to run the \'initS3\' method prior to using helper functions');
+  var _ref2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
+  var name = _ref2.name;
+  var expires = _ref2.expires;
+  var bucket = _ref2.bucket;
+  var isPrivate = _ref2.isPrivate;
+  var acl = _ref2.acl;
+
+  // catching argument errors
+  if (!s3.getSignedUrlAsync) return console.log(new Error('Error: Need to run the \'initS3\' method prior to using helper functions'));
+
+  if (!bucket && !config.s3Bucket) return console.log(new Error('Error: no bucket provided via \'setBucket\' method or options object'));
+
+  if (!reqName && !name) return console.log(new Error('Error: must provide \'name\' property in either request object (first argument) or options object (second argument)'));
+
+  if (!type) return console.log(new Error('Error: must provide \'type\' property in request object (first argument)'));
+
+  // actual function execution
   return s3.getSignedUrlAsync('putObject', {
-    Bucket: bucket || config.s3Bucket || console.log('Error: no bucket provided via \'setBucket\' method or options object') || null,
-    Key: name || infoObj.name,
+    Bucket: bucket || config.s3Bucket || null,
+    Key: name || reqName,
     Expires: expires || 60,
-    ContentType: infoObj.type,
+    ContentType: type,
     ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
   }).then(function (data) {
     return _bluebird2.default.resolve({
       signed_request: data,
-      url: getObjectUrl(bucket || config.s3Bucket, name || infoObj.name)
+      url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
     });
   }).catch(function (err) {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);

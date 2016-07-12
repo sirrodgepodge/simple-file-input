@@ -39,20 +39,31 @@ const getObjectUrl = (bucket, name) =>
 // // Helper Functions
 
 // helper for uploading to S3
-export const signUploadToS3 = (infoObj, {name, expires, bucket, isPrivate, acl} = {}) => {
+export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucket, isPrivate, acl} = {}) => {
+  // catching argument errors
   if(!s3.getSignedUrlAsync)
-    return console.log('Need to run the \'initS3\' method prior to using helper functions');
+    return console.log(new Error(`Error: Need to run the 'initS3' method prior to using helper functions`));
 
+  if(!bucket && !config.s3Bucket)
+    return console.log(new Error(`Error: no bucket provided via 'setBucket' method or options object`));
+
+  if(!reqName && !name)
+    return console.log(new Error(`Error: must provide 'name' property in either request object (first argument) or options object (second argument)`));
+
+  if(!type)
+    return console.log(new Error(`Error: must provide 'type' property in request object (first argument)`));
+
+  // actual function execution
   return s3.getSignedUrlAsync('putObject', {
-    Bucket: bucket || config.s3Bucket || console.log(`Error: no bucket provided via 'setBucket' method or options object`) || null,
-    Key: name || infoObj.name,
+    Bucket: bucket || config.s3Bucket || null,
+    Key: name || reqName,
     Expires: expires || 60,
-    ContentType: infoObj.type,
+    ContentType: type,
     ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
   })
   .then(data => Promise.resolve({
     signed_request: data,
-    url: getObjectUrl(bucket || config.s3Bucket, name || infoObj.name)
+    url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
   }))
   .catch(err => {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);
