@@ -89,13 +89,13 @@ app.post('/sign', (req, res, next) =>
 ```
 
 ### S3 Bucket set up
-*Note*: In order for S3 uploading to work you with or without simple-file-input you will also need to set a bucket policy and CORS configuration that will allow uploads and (presumably) retrievals to happen from your site.  You can set these after creating an S3 bucket by selecting "Properties" and then "Permissions" on that bucket.  Here are AWS's tools and docs for these two things:
+*Note*: In order for S3 uploading to work you with or without simple-file-input you will also need to set a bucket policy and CORS configuration (needed to allow API interaction) that will allow uploads and (presumably) retrievals to happen from your site.  You can set these after creating an S3 bucket by selecting "Properties" and then "Permissions" on that bucket.  Here are AWS's tools and docs for these two things:
 * S3 bucket policy generator: <a href="https://awspolicygen.s3.amazonaws.com/policygen.html">https://awspolicygen.s3.amazonaws.com/policygen.html</a>
 * S3 bucket policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/example-bucket-policies.html</a>
 * CORS policy documentation: <a href="http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html">http://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html</a>
 
 If you just want to get something working, feel free to use the following (replace "YOUR_BUCKET_NAME_GOES_HERE" with your actual bucket name):
-* Bucket Policy:
+* Bucket Policy (makes uploaded files' i.e. bucket objects' URLs public):
 ```
 {
 	"Version": "2012-10-17",
@@ -111,7 +111,7 @@ If you just want to get something working, feel free to use the following (repla
 	]
 }
 ```
-* CORS Policy:
+* CORS Policy (allows API interaction from any origin):
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
@@ -167,7 +167,7 @@ static propTypes = {
   fileName: PropTypes.string,         // by default the uploaded file's name will be used as the name stored in S3, this can be overridden with this property, nonword characters will be removed from the a provided string to avoid URL issues (note that the generated unique-ifying string will still be appended unless you overwrite the 'fileAppend' property below with an empty string)
   // overrides default string appended to file name
   fileAppend: PropTypes.string,       // by default a string combining a timestamp and a shortid and will be appended to the file's name to ensure uniqueness, this can be overridden with a different string or empty string via this prop, nonword characters will be removed from the a provided string to avoid URL issues
-  // specifies S3 folder inside of bucket
+  // specifies S3 folder path inside of bucket
   remoteFolder: PropTypes.string,     // optional prop used to specify a file path inside of your S3 bucket, e.g. '/folder1/folder2' will save your upload to '<S3 host route>/folder1/folder2/<file name>', the forward slash at the beginning of this string is not required
 
   // specifies acceptable file extensions
@@ -327,8 +327,8 @@ app.post('/sign', (req, res, next) =>
   name:      <string>,  // override name passed in by request, note that the file extension will not be added onto a name you provide here
   expires:   <number>,  // set the number of seconds before the signed url expires (defaults to 60)
   bucket:    <string>,  // set the bucket to upload to, overrides the s3 bucket set with the 'setBucket' method (you could also just use this option on every method instead of using 'setBucket' at set-up)
-  isPrivate: <boolean>, // if set to true will make file reads require s3 authentication by setting ACL to 'authenticated-read', default is false which sets ACL to 'public-read', meaning all requests to the file's URL can view/download the uploaded file
-  acl:       <string>,  // specify the ACL(Access Control List) for your upload: see docs on ACLs here:
+  isPrivate: <boolean>, // if set to true will make file reads by other AWS users require s3 authentication by setting ACL to 'authenticated-read', default is false which sets ACL to 'public-read', meaning all requests to the file's URL can view/download the uploaded file
+  acl:       <string>,  // specify the ACL(Access Control List) for your upload (affects permissions of other AWS users, i.e. other apps with different AWS creds trying to access your bucket), see docs on ACLs here:
   http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
   ...otherOptions       // additional properties will be passed into the params for the 'getSignedUrl' method, these params correspond to 'putObject' as this is the operation we are signing for, params are documented here:
   http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property

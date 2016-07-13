@@ -67,8 +67,7 @@ module.exports = (_temp2 = _class = function (_Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(FileInput)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
-      loadingState: _this.props.initialLoadState || 'pristine',
-      loadMessage: ''
+      loadingState: _this.props.initialLoadState || 'pristine'
     }, _this.uniqueId = _shortid2.default.generate(), _this.getUnique = function () {
       return (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_');
     }, _this.onChange = function (acceptableFileExtensions, event) {
@@ -77,8 +76,7 @@ module.exports = (_temp2 = _class = function (_Component) {
 
       // update loader state to loading
       _this.setState({
-        loadingState: 'loading',
-        loadMessage: ''
+        loadingState: 'loading'
       });
 
       // load in input asset
@@ -150,7 +148,7 @@ module.exports = (_temp2 = _class = function (_Component) {
               // });
             });
           }).catch(function (err) {
-            console.log('Failed to upload file: ' + err);
+            assetUploadStateHandler(err, null);
             _this.props.onS3Load(err, null);
           });
         }
@@ -161,8 +159,7 @@ module.exports = (_temp2 = _class = function (_Component) {
         if (err) {
           // update loader to failure
           _this.setState({
-            loadingState: 'failure',
-            loadMessage: 'Upload Failed - ' + err.message
+            loadingState: 'failure'
           });
         } else if (data) {
           // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
@@ -175,15 +172,13 @@ module.exports = (_temp2 = _class = function (_Component) {
         } else {
           // update loader to failure
           _this.setState({
-            loadingState: 'failure',
-            loadMessage: 'Upload Failed - Please Try Again'
+            loadingState: 'failure'
           });
         }
       };
     }, _this.setSuccess = function () {
       _this.setState({
-        loadingState: 'success',
-        loadMessage: 'Upload Success!'
+        loadingState: 'success'
       });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
@@ -239,13 +234,13 @@ module.exports = (_temp2 = _class = function (_Component) {
           name: this.uniqueId,
           id: this.uniqueId
         }),
-        _react2.default.createElement(
+        !this.props.noMessage && _react2.default.createElement(
           'span',
           {
             className: 'simple-file-input-message ' + (messageClass || ''),
             style: messageStyle
           },
-          this.state.loadMessage
+          this.props[this.state.loadingState + 'Message']
         )
       );
     }
@@ -260,6 +255,13 @@ module.exports = (_temp2 = _class = function (_Component) {
   inputStyle: _react.PropTypes.object,
   messageClass: _react.PropTypes.string,
   messageStyle: _react.PropTypes.object,
+
+  // hide success/failure message
+  noMessage: _react.PropTypes.bool,
+  pristineMessage: _react.PropTypes.string,
+  loadingMessage: _react.PropTypes.string,
+  successMessage: _react.PropTypes.string,
+  failureMessage: _react.PropTypes.string,
 
   // loading state classes
   pristineClass: _react.PropTypes.string,
@@ -287,7 +289,7 @@ module.exports = (_temp2 = _class = function (_Component) {
   fileName: _react.PropTypes.string,
   // overrides default string appended to file name
   fileAppend: _react.PropTypes.string,
-  // folder to prepend to file name
+  // specifies S3 folder path inside of bucket
   remoteFolder: _react.PropTypes.string,
 
   // specifies acceptable file types
@@ -303,6 +305,11 @@ module.exports = (_temp2 = _class = function (_Component) {
   style: {},
   inputStyle: {},
   messageStyle: {},
+
+  pristineMessage: '',
+  loadingMessage: '',
+  successMessage: 'Upload Success!',
+  failureMessage: 'Upload Failed - Please Try Again',
 
   // default to font awesome class names
   pristineClass: 'fa fa-upload',

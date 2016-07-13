@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.signGetFromS3 = exports.signUploadToS3 = exports.setBucket = exports.config = exports.initS3 = exports.s3 = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _bluebird = require('bluebird');
@@ -111,4 +113,34 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
   });
 };
 
-var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3() {};
+var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3(name) {
+  var _ref3 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  var bucket = _ref3.bucket;
+  var expires = _ref3.expires;
+
+  var otherOptions = _objectWithoutProperties(_ref3, ['bucket', 'expires']);
+
+  // allow key to be provided as a string
+  var Key = (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object' && name !== null ? name.name : name;
+
+  // catching argument errors
+  if (typeof s3.getSignedUrlAsync !== 'function') return console.log(new Error('Need to run the \'initS3\' method prior to using helper functions'));
+
+  if (typeof bucket !== 'string' && typeof config.s3Bucket !== 'string') return console.log(new Error('must provide \'bucket\' property as string either via \'setBucket\' method or options object (second argument)'));
+
+  if (typeof Key !== 'string') return console.log(new Error('must provide \'name\' as either string in first argument or string property on object in first argument'));
+
+  return s3.getSignedUrlAsync('getObject', _extends({
+    Bucket: bucket || config.s3Bucket || null,
+    Key: Key,
+    Expires: expires || 60
+  }, otherOptions)).then(function (data) {
+    return _bluebird2.default.resolve({
+      signed_request: data
+    });
+  }).catch(function (err) {
+    console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);
+    return _bluebird2.default.reject(err);
+  });
+};

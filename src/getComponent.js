@@ -23,50 +23,28 @@ module.exports = class FileInput extends Component {
     // styling
     className: PropTypes.string,
     style: PropTypes.object,
-    inputClass: PropTypes.string,
-    inputStyle: PropTypes.object,
     messageClass: PropTypes.string,
     messageStyle: PropTypes.object,
 
-    // hide success/failure message
-    noMessage: PropTypes.bool,
-    pristineMessage: PropTypes.string,
-    loadingMessage: PropTypes.string,
-    successMessage: PropTypes.string,
-    failureMessage: PropTypes.string,
-
     // loading state classes
-    pristineClass: PropTypes.string,
+    notLoadingClass: PropTypes.string,
     loadingClass: PropTypes.string,
-    successClass: PropTypes.string,
-    failureClass: PropTypes.string,
 
     // initial icon state
-    initialLoadState: PropTypes.oneOf(['pristine', 'loading', 'success', 'failure']),
+    initialLoadState: PropTypes.oneOf(['notLoading', 'loading']),
 
     // helps smooth aesthetic
     minLoadTime: PropTypes.number,
 
-    // maximum file size (in bytes)
-    maxSize: PropTypes.number,
-
-    // triggered when blob is loaded if provided
-    onBlobLoad: PropTypes.func,
+    // overrides uploaded file's name
+    fileName: PropTypes.string,
+    // S3 signature getting route
+    signingRoute: PropTypes.string,
 
     // triggered when s3 upload is done, if function is provided
     onS3Load: PropTypes.func,
-    // S3 signature getting route
-    signingRoute: PropTypes.string,
-    // overrides uploaded file's name
-    fileName: PropTypes.string,
-    // overrides default string appended to file name
-    fileAppend: PropTypes.string,
-    // specifies S3 folder path inside of bucket
-    remoteFolder: PropTypes.string,
-
-    // specifies acceptable file types
-    type: PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
-    accept: PropTypes.array, // allow user to specify extensions
+    // triggered when blob is loaded if provided
+    onBlobLoad: PropTypes.func
   }
 
   static defaultProps = {
@@ -81,20 +59,14 @@ module.exports = class FileInput extends Component {
     inputStyle: {},
     messageStyle: {},
 
-    pristineMessage: '',
-    loadingMessage: '',
-    successMessage: 'Upload Success!',
-    failureMessage: 'Upload Failed - Please Try Again',
-
     // default to font awesome class names
     pristineClass: 'fa fa-upload',
-    loadingClass: 'fa fa-spinner fa-spin',
-    successClass: 'fa fa-thumbs-o-up',
-    failureClass: 'fa fa-thumbs-o-down'
+    loadingClass: 'fa fa-spinner fa-spin'
   }
 
   state = {
-    loadingState: this.props.initialLoadState || 'pristine'
+    loadingState: this.props.initialLoadState || 'pristine',
+    loadMessage: ''
   }
 
   uniqueId = shortId.generate()
@@ -107,7 +79,8 @@ module.exports = class FileInput extends Component {
 
     // update loader state to loading
     this.setState({
-      loadingState: 'loading'
+      loadingState: 'loading',
+      loadMessage: ''
     });
 
     // load in input asset
@@ -189,7 +162,7 @@ module.exports = class FileInput extends Component {
             });
         })
         .catch(err => {
-          assetUploadStateHandler(err, null);
+          console.log(`Failed to upload file: ${err}`);
           this.props.onS3Load(err, null);
         });
       }
@@ -201,7 +174,8 @@ module.exports = class FileInput extends Component {
     if (err) {
       // update loader to failure
       this.setState({
-        loadingState: 'failure'
+        loadingState: 'failure',
+        loadMessage: `Upload Failed - ${err.message}`
       });
     } else if (data) {
       // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
@@ -214,14 +188,16 @@ module.exports = class FileInput extends Component {
     } else {
       // update loader to failure
       this.setState({
-        loadingState: 'failure'
+        loadingState: 'failure',
+        loadMessage: 'Upload Failed - Please Try Again'
       });
     }
   };
 
   setSuccess = () => {
     this.setState({
-      loadingState: 'success'
+      loadingState: 'success',
+      loadMessage: 'Upload Success!'
     });
   }
 
@@ -269,16 +245,12 @@ module.exports = class FileInput extends Component {
           name={this.uniqueId}
           id={this.uniqueId}
         />
-        {
-          !this.props.noMessage
-          &&
-          <span
-            className={`simple-file-input-message ${messageClass || ''}`}
-            style={messageStyle}
-          >
-            {this.props[`${this.state.loadingState}Message`]}
-          </span>
-        }
+      <span
+        className={`simple-file-input-message ${messageClass || ''}`}
+        style={messageStyle}
+      >
+          {this.state.loadMessage}
+        </span>
       </label>
     );
   }
