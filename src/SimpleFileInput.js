@@ -361,7 +361,8 @@ class RetrievalButton extends Component {
   }
 
   state = {
-    loadingState: this.props.initialLoadState || 'notLoading'
+    loadingState: this.props.initialLoadState || 'notLoading',
+    loaded: false
   }
 
   componentDidMount = () => {
@@ -416,7 +417,9 @@ class RetrievalButton extends Component {
       // update URL with fetched URL
       this.updateUrl(res.body.signedRequest);
 
-      console.log(parseQueryString(res.body.signedRequest));
+      // set Loaded to true but set back to false once expired
+      this.setLoaded(true);
+      setTimeout(() => this.setLoaded(false), +parseQueryString(res.body.signedRequest).Expires - Date.now());
 
       if(!this.props.onS3Res) {
         assetRetrievalStateHandler(null, res.body.signedRequest);
@@ -478,6 +481,12 @@ class RetrievalButton extends Component {
     }
   }
 
+  setLoaded = val => {
+    this.setState({
+      loaded: val
+    });
+  }
+
   setLoading = () => {
     if(this.state.loadingState !== 'loading') {
       this.setState({
@@ -525,7 +534,7 @@ class RetrievalButton extends Component {
     return (
       <a
         className={`retrieval-button ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
-        style={{...(this.state.loadingState === 'success' ? {
+        style={{...(this.state.loaded ? {
           pointerEvents: 'none',
           cursor: 'default'
         } : {

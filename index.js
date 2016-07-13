@@ -343,7 +343,8 @@ var RetrievalButton = function (_Component2) {
     }
 
     return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_Object$getPrototypeO2 = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO2, [this].concat(args))), _this2), _this2.state = {
-      loadingState: _this2.props.initialLoadState || 'notLoading'
+      loadingState: _this2.props.initialLoadState || 'notLoading',
+      loaded: false
     }, _this2.componentDidMount = function () {
       // load in fileName asset on mount
       if (_this2.props.autoLoad && _this2.props.fileName) {
@@ -388,7 +389,11 @@ var RetrievalButton = function (_Component2) {
         // update URL with fetched URL
         _this2.updateUrl(res.body.signedRequest);
 
-        console.log((0, _querystring.parse)(res.body.signedRequest));
+        // set Loaded to true but set back to false once expired
+        _this2.setLoaded(true);
+        setTimeout(function () {
+          return _this2.setLoaded(false);
+        }, +(0, _querystring.parse)(res.body.signedRequest).Expires - Date.now());
 
         if (!_this2.props.onS3Res) {
           assetRetrievalStateHandler(null, res.body.signedRequest);
@@ -442,6 +447,10 @@ var RetrievalButton = function (_Component2) {
           fileLink: fileLink
         });
       }
+    }, _this2.setLoaded = function (val) {
+      _this2.setState({
+        loaded: val
+      });
     }, _this2.setLoading = function () {
       if (_this2.state.loadingState !== 'loading') {
         _this2.setState({
@@ -495,7 +504,7 @@ var RetrievalButton = function (_Component2) {
         'a',
         _extends({
           className: 'retrieval-button ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
-          style: _extends({}, this.state.loadingState === 'success' ? {
+          style: _extends({}, this.state.loaded ? {
             pointerEvents: 'none',
             cursor: 'default'
           } : {
