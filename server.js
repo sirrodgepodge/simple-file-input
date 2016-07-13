@@ -104,7 +104,7 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
     ACL: acl || isPrivate ? 'private' : 'public-read'
   }, otherOptions)).then(function (data) {
     return _bluebird2.default.resolve({
-      signed_request: data,
+      signedRequest: data,
       url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
     });
   }).catch(function (err) {
@@ -137,7 +137,7 @@ var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3(name) {
     Expires: expires || 60
   }, otherOptions)).then(function (data) {
     return _bluebird2.default.resolve({
-      signed_request: data
+      signedRequest: data
     });
   }).catch(function (err) {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);

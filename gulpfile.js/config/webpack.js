@@ -1,5 +1,6 @@
 const webpack         = require('webpack'),
-      path            = require('path');
+      path            = require('path'),
+      fs              = require('fs');
 
 // /***********************************************************************
 //  * @TODO: Reconcile development/test/production cofiguration.          *
@@ -12,13 +13,15 @@ const webpack         = require('webpack'),
 // Path vars
 const jsSrc = path.resolve('../'),
       jsDest = path.resolve('./'),
-      publicPath = '/';  // public javascript file kept at root
+      publicPath = './';  // public javascript file kept at root
 
 
 const webpackConfig = {
   entry: [
-    './src/SimpleFileInput.js'
+    './src/SimpleFileInput'
   ],
+
+  externals: fs.readdirSync('node_modules'),
 
   output: {
     path: jsDest,
@@ -34,7 +37,7 @@ const webpackConfig = {
     loaders: [
       {
         test: /\.jsx*$/,
-        exclude: [/node_modules/],
+        // exclude: [/node_modules/],s
         loader: 'babel',
         include: jsSrc,
         query: {
@@ -49,14 +52,14 @@ const webpackConfig = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('production'), // sets on client too
-        CLIENT: JSON.stringify(true)
+        NODE_ENV: JSON.stringify('production') // sets on client too
       }
     }),
     new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: false
-    })
+    // new webpack.optimize.UglifyJsPlugin({
+    //   sourceMap: false
+    // }),
+    new webpack.NoErrorsPlugin() // prevents updating of generated files when there are errors
   ]
 };
 

@@ -68,7 +68,7 @@ export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucke
     ...otherOptions
   })
   .then(data => Promise.resolve({
-    signed_request: data,
+    signedRequest: data,
     url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
   }))
   .catch(err => {
@@ -98,7 +98,7 @@ export const signGetFromS3 = (name, {bucket, expires, ...otherOptions} = {}) => 
     ...otherOptions
   })
   .then(data => Promise.resolve({
-    signed_request: data
+    signedRequest: data
   }))
   .catch(err => {
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);

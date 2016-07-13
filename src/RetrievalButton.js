@@ -18,7 +18,7 @@ const acceptableExtensionsMap = {
 };
 
 
-export default class RetrievalButton extends Component {
+class RetrievalButton extends Component {
   static propTypes = {
     // styling
     className: PropTypes.string,
@@ -254,4 +254,6 @@ export default class RetrievalButton extends Component {
       </label>
     );
   }
-};
+}
+
+module.exports = RetrievalButton;
