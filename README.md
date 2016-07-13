@@ -162,7 +162,13 @@ static propTypes = {
   // triggered when s3 upload is done, if this prop is provided
   onS3Load: PropTypes.func,           // callback executed as soon as file is uploaded to S3, callback has the signature: function (error, s3FileUrl) {...}
   // S3 signature getting route
-  signingRoute: PropTypes.string,     // determines the back end route that will get hit in order to get an S3 signature for uploading to S3 from front end
+  signingRoute: PropTypes.string,     // (Required if OnS3Load function is Supplied) determines the back end route that will get hit in order to get an S3 signature for uploading to S3 from front end
+  // overrides uploaded file's name
+  fileName: PropTypes.string,         // by default the uploaded file's name will be used as the name stored in S3, this can be overridden with this property, nonword characters will be removed from the a provided string to avoid URL issues (note that the generated unique-ifying string will still be appended unless you overwrite the 'fileAppend' property below with an empty string)
+  // overrides default string appended to file name
+  fileAppend: PropTypes.string,       // by default a string combining a timestamp and a shortid and will be appended to the file's name to ensure uniqueness, this can be overridden with a different string or empty string via this prop, nonword characters will be removed from the a provided string to avoid URL issues
+  // specifies S3 folder inside of bucket
+  remoteFolder: PropTypes.string,     // optional prop used to specify a file path inside of your S3 bucket, e.g. '/folder1/folder2' will save your upload to '<S3 host route>/folder1/folder2/<file name>', the forward slash at the beginning of this string is not required
 
   // specifies acceptable file extensions
   accept: PropTypes.array,            // sets the file extensions which the file uploader will accept, e.g. ['pdf', 'jpeg']
@@ -322,7 +328,10 @@ app.post('/sign', (req, res, next) =>
   expires:   <number>,  // set the number of seconds before the signed url expires (defaults to 60)
   bucket:    <string>,  // set the bucket to upload to, overrides the s3 bucket set with the 'setBucket' method (you could also just use this option on every method instead of using 'setBucket' at set-up)
   isPrivate: <boolean>, // if set to true will make file reads require s3 authentication by setting ACL to 'authenticated-read', default is false which sets ACL to 'public-read', meaning all requests to the file's URL can view/download the uploaded file
-  acl:       <string>   // specify the ACL(Access Control List) for your upload: see docs on ACLs here: http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+  acl:       <string>,  // specify the ACL(Access Control List) for your upload: see docs on ACLs here:
+  http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+  ...otherOptions       // additional properties will be passed into the params for the 'getSignedUrl' method, these params correspond to 'putObject' as this is the operation we are signing for, params are documented here:
+  http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
 }
 ```
 

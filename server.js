@@ -3,17 +3,25 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.signUploadToS3 = exports.setBucket = exports.config = exports.initS3 = exports.s3 = undefined;
+exports.signGetFromS3 = exports.signUploadToS3 = exports.setBucket = exports.config = exports.initS3 = exports.s3 = undefined;
 
-var _lodash = require('lodash.merge');
-
-var _lodash2 = _interopRequireDefault(_lodash);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _bluebird = require('bluebird');
 
 var _bluebird2 = _interopRequireDefault(_bluebird);
 
+var _lodash = require('lodash.merge');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _isoPathJoin = require('iso-path-join');
+
+var _isoPathJoin2 = _interopRequireDefault(_isoPathJoin);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 // // Configuration
 
@@ -50,7 +58,7 @@ var setBucket = exports.setBucket = function setBucket(bucket) {
 
 // genrates url for stored object to send to the front end
 var getObjectUrl = function getObjectUrl(bucket, name) {
-  return '' + config.hostUrl + (s3.config.s3BucketEndpoint ? '' : bucket) + '/' + name;
+  return (0, _isoPathJoin2.default)('' + config.hostUrl + (s3.config.s3BucketEndpoint ? '' : bucket), name);
 };
 
 // // Helper Functions
@@ -70,23 +78,29 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
   var isPrivate = _ref2.isPrivate;
   var acl = _ref2.acl;
 
+  var otherOptions = _objectWithoutProperties(_ref2, ['name', 'expires', 'bucket', 'isPrivate', 'acl']);
+
   // catching argument errors
-  if (!s3.getSignedUrlAsync) return console.log(new Error('Error: Need to run the \'initS3\' method prior to using helper functions'));
+  if (typeof s3.getSignedUrlAsync !== 'function') return console.log(new Error('Need to run the \'initS3\' method prior to using helper functions'));
 
-  if (!bucket && !config.s3Bucket) return console.log(new Error('Error: no bucket provided via \'setBucket\' method or options object'));
+  if (typeof bucket !== 'string' && typeof config.s3Bucket !== 'string') return console.log(new Error('must provide \'bucket\' property as string either via \'setBucket\' method or options object (second argument)'));
 
-  if (!reqName && !name) return console.log(new Error('Error: must provide \'name\' property in either request object (first argument) or options object (second argument)'));
+  if (typeof reqName !== 'string' && typeof name !== 'string') return console.log(new Error('must provide \'name\' property as string in either request object (first argument) or options object (second argument)'));
 
-  if (!type) return console.log(new Error('Error: must provide \'type\' property in request object (first argument)'));
+  if (typeof type !== 'string') return console.log(new Error('must provide \'type\' property as mime type string in request object (first argument)'));
+
+  // need to
+  var fileName = name || reqName;
+  fileName = fileName[0] === '/' ? fileName.slice(1) : fileName;
 
   // actual function execution
-  return s3.getSignedUrlAsync('putObject', {
+  return s3.getSignedUrlAsync('putObject', _extends({
     Bucket: bucket || config.s3Bucket || null,
-    Key: name || reqName,
+    Key: fileName,
     Expires: expires || 60,
     ContentType: type,
-    ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
-  }).then(function (data) {
+    ACL: acl || isPrivate ? 'private' : 'public-read'
+  }, otherOptions)).then(function (data) {
     return _bluebird2.default.resolve({
       signed_request: data,
       url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
@@ -96,3 +110,5 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
     return _bluebird2.default.reject(err);
   });
 };
+
+var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3() {};

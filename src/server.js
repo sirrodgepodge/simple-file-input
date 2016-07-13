@@ -1,5 +1,6 @@
-import merge from 'lodash.merge';
 import Promise from 'bluebird';
+import merge from 'lodash.merge';
+import pathJoin from 'iso-path-join';
 
 // // Configuration
 
@@ -34,32 +35,37 @@ export const setBucket = bucket => {
 
 // genrates url for stored object to send to the front end
 const getObjectUrl = (bucket, name) =>
-  `${config.hostUrl}${(s3.config.s3BucketEndpoint ? '' : bucket)}/${name}`;
+  pathJoin(`${config.hostUrl}${s3.config.s3BucketEndpoint ? '' : bucket}`, name);
 
 // // Helper Functions
 
 // helper for uploading to S3
-export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucket, isPrivate, acl} = {}) => {
+export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucket, isPrivate, acl, ...otherOptions} = {}) => {
   // catching argument errors
-  if(!s3.getSignedUrlAsync)
-    return console.log(new Error(`Error: Need to run the 'initS3' method prior to using helper functions`));
+  if(typeof s3.getSignedUrlAsync !== 'function')
+    return console.log(new Error(`Need to run the 'initS3' method prior to using helper functions`));
 
-  if(!bucket && !config.s3Bucket)
-    return console.log(new Error(`Error: no bucket provided via 'setBucket' method or options object`));
+  if(typeof bucket !== 'string' && typeof config.s3Bucket !== 'string')
+    return console.log(new Error(`must provide 'bucket' property as string either via 'setBucket' method or options object (second argument)`));
 
-  if(!reqName && !name)
-    return console.log(new Error(`Error: must provide 'name' property in either request object (first argument) or options object (second argument)`));
+  if(typeof reqName !== 'string' && typeof name !== 'string')
+    return console.log(new Error(`must provide 'name' property as string in either request object (first argument) or options object (second argument)`));
 
-  if(!type)
-    return console.log(new Error(`Error: must provide 'type' property in request object (first argument)`));
+  if(typeof type !== 'string')
+    return console.log(new Error(`must provide 'type' property as mime type string in request object (first argument)`));
+
+  // need to
+  let fileName = name || reqName;
+  fileName = fileName[0] === '/' ? fileName.slice(1) : fileName;
 
   // actual function execution
   return s3.getSignedUrlAsync('putObject', {
     Bucket: bucket || config.s3Bucket || null,
-    Key: name || reqName,
+    Key: fileName,
     Expires: expires || 60,
     ContentType: type,
-    ACL: acl || isPrivate ? 'authenticated-read' : 'public-read'
+    ACL: acl || isPrivate ? 'private' : 'public-read',
+    ...otherOptions
   })
   .then(data => Promise.resolve({
     signed_request: data,
@@ -69,4 +75,8 @@ export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucke
     console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);
     return Promise.reject(err);
   });
+};
+
+export const signGetFromS3 = () => {
+
 };

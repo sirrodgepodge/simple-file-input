@@ -21,6 +21,10 @@ var _simpleIsoFetch = require('simple-iso-fetch');
 
 var _simpleIsoFetch2 = _interopRequireDefault(_simpleIsoFetch);
 
+var _isoPathJoin = require('iso-path-join');
+
+var _isoPathJoin2 = _interopRequireDefault(_isoPathJoin);
+
 var _superagent = require('superagent');
 
 var _superagent2 = _interopRequireDefault(_superagent);
@@ -65,7 +69,9 @@ module.exports = (_temp2 = _class = function (_Component) {
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(FileInput)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
       loadingState: _this.props.initialLoadState || 'pristine',
       loadMessage: ''
-    }, _this.uniqueId = _shortid2.default.generate(), _this.onChange = function (acceptableFileExtensions, event) {
+    }, _this.uniqueId = _shortid2.default.generate(), _this.getUnique = function () {
+      return (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_');
+    }, _this.onChange = function (acceptableFileExtensions, event) {
       // handle cancel
       if (!event.target.files.length) return;
 
@@ -81,12 +87,15 @@ module.exports = (_temp2 = _class = function (_Component) {
       // file upload vars
       var fileObj = event.target.files[0],
           ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
-          name = fileObj.name.slice(0, fileObj.name.lastIndexOf('.')).replace(urlSafe, '_') + '_' + (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_') + ext,
+          name = (typeof _this.props.fileName !== 'undefined' ? _this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof _this.props.fileAppend !== 'undefined' ? _this.props.fileAppend : '_' + _this.getUnique()) + ext,
           type = fileObj.type,
           size = fileObj.size;
 
-      if (size > _this.props.maxSize) return _this.assetUploadStateHandler(startTime)(new Error('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB'), null);
-      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return _this.assetUploadStateHandler(startTime)(new Error('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', ')), null);else {
+      // compose upload state handler
+      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+
+      if (size > _this.props.maxSize) return assetUploadStateHandler(new Error('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB'), null);
+      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', ')), null);else {
         // // Handles immediate return of Data URI
         if (_this.props.onBlobLoad && typeof onBlobLoad === 'function') {
           var reader = new FileReader();
@@ -94,13 +103,13 @@ module.exports = (_temp2 = _class = function (_Component) {
 
           // send blob load error to callback
           reader.onerror = function (err) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) _this.assetUploadStateHandler(startTime)(err, null);
+            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(err, null);
             _this.props.onBlobLoad(err, null);
           };
 
           // sends blob to callback
           reader.onloadend = function (e) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) _this.assetUploadStateHandler(startTime)(null, e.target.result);
+            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
             _this.props.onBlobLoad(null, e.target.result);
           };
         }
@@ -113,18 +122,20 @@ module.exports = (_temp2 = _class = function (_Component) {
           _simpleIsoFetch2.default.post({
             route: _this.props.signingRoute,
             body: {
-              name: name,
+              name: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name,
               type: type
             }
           }).then(function (res) {
-            _superagent2.default.put(res.body.signed_request, fileObj).set({
-              'x-amz-acl': 'public-read'
-            }).end(function (err) {
-              if (err) {
-                return _this.props.onS3Load(err, null);
+            _superagent2.default.put(res.body.signed_request, fileObj).end(function (err, final) {
+              var error = err || final.error;
+
+              if (error) {
+                assetUploadStateHandler(error, null);
+                return _this.props.onS3Load(error, null);
               }
+
               // run state handler
-              _this.assetUploadStateHandler(startTime)(null, res.body.url);
+              assetUploadStateHandler(null, res.body.url);
 
               // execute callback with S3 stored file name
               _this.props.onS3Load(null, res.body.url);
@@ -132,9 +143,9 @@ module.exports = (_temp2 = _class = function (_Component) {
               // //// as soon as I figure out how to make fetch work with S3 I'll replace this
               // return simpleIsoFetch.put({
               //   route: res.body.signed_request,
-              //   headers: {
-              //     'x-amz-acl': 'public-read'
-              //   },
+              // headers: {
+              //   'x-amz-acl': 'public-read'
+              // },
               //   body: fileObj
               // });
             });
@@ -144,7 +155,7 @@ module.exports = (_temp2 = _class = function (_Component) {
           });
         }
       }
-    }, _this.assetUploadStateHandler = function () {
+    }, _this.assetUploadStateHandlerGen = function () {
       var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
       return function (err, data) {
         if (err) {
@@ -184,12 +195,6 @@ module.exports = (_temp2 = _class = function (_Component) {
 
 
   _createClass(FileInput, [{
-    key: 'getLoaderClass',
-    value: function getLoaderClass(loadingState) {
-      var propsClass = this.props[loadingState + 'Class'];
-      return propsClass || 'fa ' + classLookup[this.state.loadingState];
-    }
-  }, {
     key: 'render',
     value: function render() {
       var _props = this.props;
@@ -278,6 +283,12 @@ module.exports = (_temp2 = _class = function (_Component) {
   onS3Load: _react.PropTypes.func,
   // S3 signature getting route
   signingRoute: _react.PropTypes.string,
+  // overrides uploaded file's name
+  fileName: _react.PropTypes.string,
+  // overrides default string appended to file name
+  fileAppend: _react.PropTypes.string,
+  // folder to prepend to file name
+  remoteFolder: _react.PropTypes.string,
 
   // specifies acceptable file types
   type: _react.PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
@@ -297,5 +308,5 @@ module.exports = (_temp2 = _class = function (_Component) {
   pristineClass: 'fa fa-upload',
   loadingClass: 'fa fa-spinner fa-spin',
   successClass: 'fa fa-thumbs-o-up',
-  failureClass: 'fa fa-thumbs-down'
+  failureClass: 'fa fa-thumbs-o-down'
 }, _temp2);
