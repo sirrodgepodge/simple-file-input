@@ -240,7 +240,8 @@ var SimpleFileInput = function (_Component) {
             style: messageStyle
           },
           this.props[this.state.loadingState + 'Message']
-        )
+        ),
+        this.props.children
       );
     }
   }]);
@@ -532,7 +533,8 @@ var RetrievalButton = function (_Component2) {
             style: messageStyle
           },
           this.props[this.state.loadingState + 'Message']
-        )
+        ),
+        this.props.children
       );
     }
   }]);

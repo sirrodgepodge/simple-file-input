@@ -280,6 +280,9 @@ class SimpleFileInput extends Component {
             {this.props[`${this.state.loadingState}Message`]}
           </span>
         }
+        {
+          this.props.children
+        }
       </label>
     );
   }
@@ -565,6 +568,9 @@ class RetrievalButton extends Component {
           >
             {this.props[`${this.state.loadingState}Message`]}
           </span>
+        }
+        {
+          this.props.children
         }
       </a>
     );

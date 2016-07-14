@@ -120,7 +120,7 @@ class RetrievalButton extends Component {
 
   // asset uploading function
   assetRetrieve = fileName => {
-    fileName = fileName || this.props.remoteFolder ? pathJoin(this.props.remoteFolder, this.props.fileName) : this.props.fileName;
+    fileName = fileName || (this.props.remoteFolder ? pathJoin(this.props.remoteFolder, this.props.fileName) : this.props.fileName);
 
     if(!fileName || !this.props.signingRoute) {
       console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
@@ -288,6 +288,9 @@ class RetrievalButton extends Component {
           >
             {this.props[`${this.state.loadingState}Message`]}
           </span>
+        }
+        {
+          this.props.children
         }
       </a>
     );
