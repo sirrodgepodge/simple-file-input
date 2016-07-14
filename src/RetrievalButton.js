@@ -48,6 +48,8 @@ class RetrievalButton extends Component {
 
     // overrides uploaded file's name
     fileName: PropTypes.string,
+    // specifies S3 folder path inside of bucket
+    remoteFolder: PropTypes.string,
     // S3 signature getting route
     signingRoute: PropTypes.string,
 
@@ -67,6 +69,9 @@ class RetrievalButton extends Component {
 
     // sets minimum amount of time before loader clears
     minLoadTime: 0,
+
+    // string to append to fileName
+    remoteFolder: '',
 
     // default style objects to empty object
     style: {},
@@ -102,7 +107,7 @@ class RetrievalButton extends Component {
   componentWillReceiveProps = nextProps => {
     // hacky check for isMounted
     if(this.props.autoLoad && this.props.fileName !== nextProps.fileName) {
-      this.assetRetrieve(nextProps.fileName);
+      this.assetRetrieve(nextProps.remoteFolder ? pathJoin(nextProps.remoteFolder, nextProps.fileName) : nextProps.fileName);
     }
   }
 
@@ -115,7 +120,7 @@ class RetrievalButton extends Component {
 
   // asset uploading function
   assetRetrieve = fileName => {
-    fileName = fileName || this.props.fileName;
+    fileName = fileName || this.props.remoteFolder ? pathJoin(this.props.remoteFolder, this.props.fileName) : this.props.fileName;
 
     if(!fileName || !this.props.signingRoute) {
       console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
@@ -143,7 +148,7 @@ class RetrievalButton extends Component {
 
       // update URL with fetched URL
       this.updateUrl(res.body.signedRequest, () =>
-        !this.props.autoLoad && document.getElementById(this.uniqueId).click());
+        window.open(res.body.signedRequest, '_blank'));
 
       // set Loaded to back to false once expired
       setTimeout(() =>

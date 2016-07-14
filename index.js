@@ -360,7 +360,7 @@ var RetrievalButton = function (_Component2) {
         _this2.assetRetrieve();
       }
     }, _this2.assetRetrieve = function (fileName) {
-      fileName = fileName || _this2.props.remoteFolder ? (0, _isoPathJoin2.default)(nextProps.remoteFolder, _this2.props.fileName) : _this2.props.fileName;
+      fileName = fileName || _this2.props.remoteFolder ? (0, _isoPathJoin2.default)(_this2.props.remoteFolder, _this2.props.fileName) : _this2.props.fileName;
 
       if (!fileName || !_this2.props.signingRoute) {
         console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
