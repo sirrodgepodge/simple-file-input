@@ -97,7 +97,7 @@ var RetrievalButton = function (_Component) {
       var startTime = +new Date();
 
       // update loader state to loading
-      _this.setLoading();
+      _this.setLoading(_this.props.onLoadStart);
 
       // compose upload state handler
       var assetRetrievalStateHandler = _this.assetRetrievalStateHandlerGen(startTime);
@@ -175,14 +175,20 @@ var RetrievalButton = function (_Component) {
         }, cb);
       }
     }, _this.setNotLoaded = function (cb) {
-      _this.setState({
-        loaded: false
-      }, cb);
-    }, _this.setLoading = function () {
+      if (_this.state.loaded) {
+        _this.setState({
+          loaded: false
+        }, cb);
+      } else {
+        cb();
+      }
+    }, _this.setLoading = function (cb) {
       if (_this.state.loadingState !== 'loading') {
         _this.setState({
           loadingState: 'loading'
-        });
+        }, cb);
+      } else {
+        cb();
       }
     }, _this.setFailure = function () {
       if (_this.state.loadingState !== 'failure') {
@@ -296,6 +302,8 @@ RetrievalButton.propTypes = {
   fileLink: _react.PropTypes.string,
   href: _react.PropTypes.string,
 
+  // triggered when loading begins
+  onLoadStart: _react.PropTypes.func,
   // triggered when s3 url retrieval is done
   onS3Url: _react.PropTypes.func,
   // triggered with s3 url get response

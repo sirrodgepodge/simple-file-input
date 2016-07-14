@@ -95,6 +95,16 @@ var SimpleFileInput = function (_Component) {
         nameWithFolder: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name
       };
 
+      // clear input so that same file can be uploaded twice in a row
+      if (global.document) {
+        var domElem = document.getElementById(_this.uniqueId);
+        if (domElem) {
+          domElem.value = '';
+          domElem.type = '';
+          domElem.type = 'file';
+        }
+      }
+
       // compose upload state handler
       var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
       var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);

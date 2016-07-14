@@ -134,6 +134,16 @@ class SimpleFileInput extends Component {
       nameWithFolder: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name
     };
 
+    // clear input so that same file can be uploaded twice in a row
+    if(global.document) {
+      const domElem = document.getElementById(this.uniqueId);
+      if(domElem) {
+        domElem.value = '';
+        domElem.type = '';
+        domElem.type = 'file';
+      }
+    }
+
     // compose upload state handler
     const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
     const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
