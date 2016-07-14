@@ -134,8 +134,7 @@ var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3(name) {
   return s3.getSignedUrlAsync('getObject', _extends({
     Bucket: bucket || config.s3Bucket || null,
     Key: Key,
-    Expires: expires || 60
-  }, otherOptions)).then(function (data) {
+    Expires: expires || 300 }, otherOptions)).then(function (data) {
     return _bluebird2.default.resolve({
       signedRequest: data
     });

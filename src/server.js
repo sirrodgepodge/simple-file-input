@@ -94,7 +94,7 @@ export const signGetFromS3 = (name, {bucket, expires, ...otherOptions} = {}) => 
   return s3.getSignedUrlAsync('getObject', {
     Bucket: bucket || config.s3Bucket || null,
     Key,
-    Expires: expires || 60,
+    Expires: expires || 300, // default to 5 minutes
     ...otherOptions
   })
   .then(data => Promise.resolve({

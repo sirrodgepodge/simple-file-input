@@ -95,8 +95,7 @@ var SimpleFileInput = function (_Component) {
       if (size > _this.props.maxSize) return assetUploadStateHandler(new Error('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB'), null);
       if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', ')), null);else {
         // // Handles immediate return of Data URI
-        if (_this.props.onBlobLoad && typeof onBlobLoad === 'function') {
-          console.log('getting here');
+        if (_this.props.onBlobLoad && typeof _this.props.onBlobLoad === 'function') {
           var reader = new FileReader();
           reader.readAsDataURL(fileObj);
 
@@ -108,7 +107,6 @@ var SimpleFileInput = function (_Component) {
 
           // sends blob to callback
           reader.onloadend = function (e) {
-            console.log('getting in load end', e);
             if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
             _this.props.onBlobLoad(null, e.target.result);
           };
@@ -344,8 +342,9 @@ var RetrievalButton = function (_Component2) {
 
     return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_Object$getPrototypeO2 = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO2, [this].concat(args))), _this2), _this2.state = {
       loadingState: _this2.props.initialLoadState || 'notLoading',
-      loaded: false
-    }, _this2.componentDidMount = function () {
+      loaded: false,
+      fileLink: ''
+    }, _this2.uniqueId = _shortid2.default.generate(), _this2.componentDidMount = function () {
       // load in fileName asset on mount
       if (_this2.props.autoLoad && _this2.props.fileName) {
         _this2.assetRetrieve();
@@ -387,13 +386,16 @@ var RetrievalButton = function (_Component2) {
         if (_this2.props.onS3Url) _this2.props.onS3Url(null, res.body.signedRequest);
 
         // update URL with fetched URL
-        _this2.updateUrl(res.body.signedRequest);
+        _this2.updateUrl(res.body.signedRequest, function () {
+          return !_this2.props.autoLoad && document.getElementById(_this2.uniqueId).click();
+        });
 
-        // set Loaded to true but set back to false once expired
-        _this2.setLoaded(true);
+        // set Loaded to back to false once expired
         setTimeout(function () {
-          return _this2.setLoaded(false);
-        }, +(0, _querystring.parse)(res.body.signedRequest).Expires - Date.now());
+          return _this2.setNotLoaded(function () {
+            return _this2.props.autoLoad && _this2.assetRetrieve();
+          });
+        }, Math.max(+(0, _querystring.parse)(res.body.signedRequest).Expires * 1000 - Date.now() - 100, 0) || 900000);
 
         if (!_this2.props.onS3Res) {
           assetRetrievalStateHandler(null, res.body.signedRequest);
@@ -414,8 +416,7 @@ var RetrievalButton = function (_Component2) {
           });
         }
       }).catch(function (err) {
-        console.log('Failed to retrieve file: ' + err);
-        errorHandle(err);
+        return errorHandle(err);
       });
     }, _this2.assetRetrievalStateHandlerGen = function () {
       var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
@@ -439,18 +440,18 @@ var RetrievalButton = function (_Component2) {
     }, _this2.errorHandle = function (assetRetrievalStateHandler, err) {
       if (_this2.props.onS3Url) _this2.props.onS3Url(err, null);
       if (_this2.props.onS3Res) _this2.props.onS3Res(err, null);
-      if (_this2.props.onBlobLoad) _this2.props.onBlobLoad(err, null);
       assetRetrievalStateHandler(err, null);
-    }, _this2.updateUrl = function (fileLink) {
+    }, _this2.updateUrl = function (fileLink, cb) {
       if (!_this2.props.href && !_this2.props.fileLink) {
         _this2.setState({
-          fileLink: fileLink
-        });
+          fileLink: fileLink,
+          loaded: true
+        }, cb);
       }
-    }, _this2.setLoaded = function (val) {
+    }, _this2.setNotLoaded = function (cb) {
       _this2.setState({
-        loaded: val
-      });
+        loaded: false
+      }, cb);
     }, _this2.setLoading = function () {
       if (_this2.state.loadingState !== 'loading') {
         _this2.setState({
@@ -484,6 +485,7 @@ var RetrievalButton = function (_Component2) {
       var _props2 = this.props;
       var className = _props2.className;
       var style = _props2.style;
+      var autoLoad = _props2.autoLoad;
       var noMessage = _props2.noMessage;
       var messageClass = _props2.messageClass;
       var messageStyle = _props2.messageStyle;
@@ -492,33 +494,33 @@ var RetrievalButton = function (_Component2) {
       var failureClass = _props2.failureClass;
       var initialLoadState = _props2.initialLoadState;
       var minLoadTime = _props2.minLoadTime;
-      var onBlobLoad = _props2.onBlobLoad;
       var onS3Url = _props2.onS3Url;
       var signingRoute = _props2.signingRoute;
       var href = _props2.href;
       var fileLink = _props2.fileLink;
 
-      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'noMessage', 'messageClass', 'messageStyle', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'onBlobLoad', 'onS3Url', 'signingRoute', 'href', 'fileLink']);
+      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'onS3Url', 'signingRoute', 'href', 'fileLink']);
 
       return _react2.default.createElement(
         'a',
         _extends({
-          className: 'retrieval-button ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
-          style: _extends({}, this.state.loaded ? {
-            pointerEvents: 'none',
+          id: this.uniqueId,
+          target: '_blank',
+          className: 'retrieval-button ' + (className || '') + ' ' + this.props[(autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState) + 'Class'],
+          style: _extends({}, this.state.loadingState === 'loading' ? {
             cursor: 'default'
           } : {
             cursor: 'pointer'
           }, {
             textDecoration: 'none'
           }, style),
-          onClick: this.onClick,
-          href: fileLink || href || this.state.fileLink
+          onClick: !this.state.loaded && this.onClick,
+          href: this.state.loaded && (fileLink || href || this.state.fileLink) || 'javascript:void(0)' // eslint-disable-line
         }, otherProps),
         !noMessage && _react2.default.createElement(
           'span',
           {
-            className: 'retrieval-button-message ' + (messageClass || ''),
+            className: 'retrieval-button-message ' + messageClass,
             style: messageStyle
           },
           this.props[this.state.loadingState + 'Message']
@@ -568,9 +570,7 @@ RetrievalButton.propTypes = {
   // triggered when s3 url retrieval is done
   onS3Url: _react.PropTypes.func,
   // triggered with s3 url get response
-  onS3Res: _react.PropTypes.func,
-  // triggered when blob is loaded if provided
-  onBlobLoad: _react.PropTypes.func
+  onS3Res: _react.PropTypes.func
 };
 RetrievalButton.defaultProps = {
   // 100MB (unit is bytes)
@@ -583,9 +583,6 @@ RetrievalButton.defaultProps = {
   style: {},
   inputStyle: {},
   messageStyle: {},
-
-  // default href for root element
-  fileLink: 'javascript:void(0)', // eslint-disable-line no-script-url
 
   // default state-dependent messages
   notLoadingMessage: '',

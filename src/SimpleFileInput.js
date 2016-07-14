@@ -132,8 +132,7 @@ class SimpleFileInput extends Component {
     if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`), null);
     else {
       // // Handles immediate return of Data URI
-      if(this.props.onBlobLoad && typeof onBlobLoad === 'function') {
-        console.log('getting here');
+      if(this.props.onBlobLoad && typeof this.props.onBlobLoad === 'function') {
         const reader = new FileReader();
         reader.readAsDataURL(fileObj);
 
@@ -146,7 +145,6 @@ class SimpleFileInput extends Component {
 
         // sends blob to callback
         reader.onloadend = e => {
-          console.log('getting in load end', e);
           if(!this.props.onS3Load || !this.props.signingRoute)
             assetUploadStateHandler(null, e.target.result);
           this.props.onBlobLoad(null, e.target.result);
@@ -329,9 +327,7 @@ class RetrievalButton extends Component {
     // triggered when s3 url retrieval is done
     onS3Url: PropTypes.func,
     // triggered with s3 url get response
-    onS3Res: PropTypes.func,
-    // triggered when blob is loaded if provided
-    onBlobLoad: PropTypes.func
+    onS3Res: PropTypes.func
   }
 
   static defaultProps = {
@@ -346,9 +342,6 @@ class RetrievalButton extends Component {
     inputStyle: {},
     messageStyle: {},
 
-    // default href for root element
-    fileLink: 'javascript:void(0)', // eslint-disable-line no-script-url
-
     // default state-dependent messages
     notLoadingMessage: '',
     successMessage: 'Download Success!',
@@ -362,8 +355,11 @@ class RetrievalButton extends Component {
 
   state = {
     loadingState: this.props.initialLoadState || 'notLoading',
-    loaded: false
+    loaded: false,
+    fileLink: ''
   }
+
+  uniqueId = shortId.generate()
 
   componentDidMount = () => {
     // load in fileName asset on mount
@@ -387,7 +383,7 @@ class RetrievalButton extends Component {
   }
 
   // asset uploading function
-  assetRetrieve = (fileName) => {
+  assetRetrieve = fileName => {
     fileName = fileName || this.props.fileName;
 
     if(!fileName || !this.props.signingRoute) {
@@ -415,11 +411,13 @@ class RetrievalButton extends Component {
       if(this.props.onS3Url) this.props.onS3Url(null, res.body.signedRequest);
 
       // update URL with fetched URL
-      this.updateUrl(res.body.signedRequest);
+      this.updateUrl(res.body.signedRequest, () =>
+        !this.props.autoLoad && document.getElementById(this.uniqueId).click());
 
-      // set Loaded to true but set back to false once expired
-      this.setLoaded(true);
-      setTimeout(() => this.setLoaded(false), +parseQueryString(res.body.signedRequest).Expires - Date.now());
+      // set Loaded to back to false once expired
+      setTimeout(() =>
+        this.setNotLoaded(() => this.props.autoLoad && this.assetRetrieve()),
+          Math.max(+parseQueryString(res.body.signedRequest).Expires * 1000 - Date.now() - 100, 0) || 900000);
 
       if(!this.props.onS3Res) {
         assetRetrievalStateHandler(null, res.body.signedRequest);
@@ -441,10 +439,8 @@ class RetrievalButton extends Component {
           });
       }
     })
-    .catch(err => {
-      console.log(`Failed to retrieve file: ${err}`);
-      errorHandle(err);
-    });
+    .catch(err =>
+      errorHandle(err));
   }
 
   // callback fired when upload completes
@@ -469,22 +465,22 @@ class RetrievalButton extends Component {
   errorHandle = (assetRetrievalStateHandler, err) => {
     if(this.props.onS3Url) this.props.onS3Url(err, null);
     if(this.props.onS3Res) this.props.onS3Res(err, null);
-    if(this.props.onBlobLoad) this.props.onBlobLoad(err, null);
     assetRetrievalStateHandler(err, null);
   }
 
-  updateUrl = fileLink => {
+  updateUrl = (fileLink, cb) => {
     if(!this.props.href && !this.props.fileLink) {
       this.setState({
-        fileLink
-      });
+        fileLink,
+        loaded: true
+      }, cb);
     }
   }
 
-  setLoaded = val => {
+  setNotLoaded = cb => {
     this.setState({
-      loaded: val
-    });
+      loaded: false
+    }, cb);
   }
 
   setLoading = () => {
@@ -515,6 +511,7 @@ class RetrievalButton extends Component {
     const {
       className,
       style,
+      autoLoad,
       noMessage,
       messageClass,
       messageStyle,
@@ -523,7 +520,6 @@ class RetrievalButton extends Component {
       failureClass,     // eslint-disable-line no-unused-vars
       initialLoadState, // eslint-disable-line no-unused-vars
       minLoadTime,      // eslint-disable-line no-unused-vars
-      onBlobLoad,       // eslint-disable-line no-unused-vars
       onS3Url,         // eslint-disable-line no-unused-vars
       signingRoute,     // eslint-disable-line no-unused-vars
       href,
@@ -533,24 +529,25 @@ class RetrievalButton extends Component {
 
     return (
       <a
-        className={`retrieval-button ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
-        style={{...(this.state.loaded ? {
-          pointerEvents: 'none',
+        id={this.uniqueId}
+        target='_blank'
+        className={`retrieval-button ${className || ''} ${this.props[`${autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState}Class`]}`}
+        style={{...(this.state.loadingState === 'loading' ? {
           cursor: 'default'
         } : {
           cursor: 'pointer'
         }),
           textDecoration: 'none',
         ...style}}
-        onClick={this.onClick}
-        href={fileLink || href || this.state.fileLink}
+        onClick={!this.state.loaded && this.onClick}
+        href={this.state.loaded && (fileLink || href || this.state.fileLink) || 'javascript:void(0)'}  // eslint-disable-line
         {...otherProps}
       >
         {
           !noMessage
           &&
           <span
-            className={`retrieval-button-message ${messageClass || ''}`}
+            className={`retrieval-button-message ${messageClass}`}
             style={messageStyle}
           >
             {this.props[`${this.state.loadingState}Message`]}
