@@ -16,6 +16,8 @@ var _simpleIsoFetch = require('simple-iso-fetch');
 
 var _simpleIsoFetch2 = _interopRequireDefault(_simpleIsoFetch);
 
+var _querystring = require('querystring');
+
 var _isoPathJoin = require('iso-path-join');
 
 var _isoPathJoin2 = _interopRequireDefault(_isoPathJoin);
@@ -65,124 +67,135 @@ var RetrievalButton = function (_Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
-      loadingState: _this.props.initialLoadState || 'pristine',
-      loadMessage: ''
-    }, _this.uniqueId = _shortid2.default.generate(), _this.getUnique = function () {
-      return (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_');
-    }, _this.onChange = function (acceptableFileExtensions, event) {
-      // handle cancel
-      if (!event.target.files.length) return;
+      loadingState: _this.props.initialLoadState || 'notLoading',
+      loaded: false,
+      fileLink: ''
+    }, _this.uniqueId = _shortid2.default.generate(), _this.componentDidMount = function () {
+      // load in fileName asset on mount
+      if (_this.props.autoLoad && _this.props.fileName) {
+        _this.assetRetrieve();
+      }
+    }, _this.componentWillReceiveProps = function (nextProps) {
+      // hacky check for isMounted
+      if (_this.props.autoLoad && _this.props.fileName !== nextProps.fileName) {
+        _this.assetRetrieve(nextProps.fileName);
+      }
+    }, _this.onClick = function () {
+      if (!_this.props.autoLoad) {
+        // load in fileName asset
+        _this.assetRetrieve();
+      }
+    }, _this.assetRetrieve = function (fileName) {
+      fileName = fileName || _this.props.fileName;
+
+      if (!fileName || !_this.props.signingRoute) {
+        console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
+        if (!fileName) console.error('fileName prop is missing');
+        if (!_this.props.signingRoute) console.error('signingRoute prop is missing');
+      }
+
+      var startTime = +new Date();
 
       // update loader state to loading
-      _this.setState({
-        loadingState: 'loading',
-        loadMessage: ''
-      });
-
-      // load in input asset
-      _this.assetUpload(event, +new Date(), acceptableFileExtensions);
-    }, _this.assetUpload = function (event, startTime, acceptableFileExtensions) {
-      // file upload vars
-      var fileObj = event.target.files[0],
-          ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
-          name = (typeof _this.props.fileName !== 'undefined' ? _this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof _this.props.fileAppend !== 'undefined' ? _this.props.fileAppend : '_' + _this.getUnique()) + ext,
-          type = fileObj.type,
-          size = fileObj.size;
+      _this.setLoading();
 
       // compose upload state handler
-      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+      var assetRetrievalStateHandler = _this.assetRetrievalStateHandlerGen(startTime);
+      var errorHandle = _this.errorHandle.bind(_this, assetRetrievalStateHandler);
 
-      if (size > _this.props.maxSize) return assetUploadStateHandler(new Error('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB'), null);
-      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', ')), null);else {
-        // // Handles immediate return of Data URI
-        if (_this.props.onBlobLoad && typeof onBlobLoad === 'function') {
-          var reader = new FileReader();
-          reader.readAsDataURL(fileObj);
-
-          // send blob load error to callback
-          reader.onerror = function (err) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(err, null);
-            _this.props.onBlobLoad(err, null);
-          };
-
-          // sends blob to callback
-          reader.onloadend = function (e) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
-            _this.props.onBlobLoad(null, e.target.result);
-          };
+      _simpleIsoFetch2.default.post({
+        route: _this.props.signingRoute,
+        body: {
+          name: fileName
         }
+      }).then(function (res) {
+        if (_this.props.onS3Url) _this.props.onS3Url(null, res.body.signedRequest);
 
-        // // Handles S3 storage
-        if (_this.props.onS3Load && typeof _this.props.onS3Load === 'function') {
-          // warn if no upload string provided
-          if (typeof _this.props.signingRoute !== 'string') return console.error('need to supply signing route to use s3!');
+        // update URL with fetched URL
+        _this.updateUrl(res.body.signedRequest, function () {
+          return !_this.props.autoLoad && document.getElementById(_this.uniqueId).click();
+        });
 
-          _simpleIsoFetch2.default.post({
-            route: _this.props.signingRoute,
-            body: {
-              name: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name,
-              type: type
-            }
-          }).then(function (res) {
-            _superagent2.default.put(res.body.signed_request, fileObj).end(function (err, final) {
-              var error = err || final.error;
+        // set Loaded to back to false once expired
+        setTimeout(function () {
+          return _this.setNotLoaded(function () {
+            return _this.props.autoLoad && _this.assetRetrieve();
+          });
+        }, Math.max(+(0, _querystring.parse)(res.body.signedRequest).Expires * 1000 - Date.now() - 100, 0) || 900000);
 
-              if (error) {
-                assetUploadStateHandler(error, null);
-                return _this.props.onS3Load(error, null);
-              }
+        if (!_this.props.onS3Res) {
+          assetRetrievalStateHandler(null, res.body.signedRequest);
+        } else {
+          _superagent2.default.get(res.body.signedRequest).end(function (err, fileRes) {
+            var error = err || fileRes.error;
 
-              // run state handler
-              assetUploadStateHandler(null, res.body.url);
+            // handle error and halt execution
+            if (error) return errorHandle(error);
 
-              // execute callback with S3 stored file name
-              _this.props.onS3Load(null, res.body.url);
+            // execute callback with S3 stored file name
+            if (_this.props.onS3Res) _this.props.onS3Res(null, res.text);
 
-              // //// as soon as I figure out how to make fetch work with S3 I'll replace this
-              // return simpleIsoFetch.put({
-              //   route: res.body.signed_request,
-              // headers: {
-              //   'x-amz-acl': 'public-read'
-              // },
-              //   body: fileObj
-              // });
-            });
-          }).catch(function (err) {
-            console.log('Failed to upload file: ' + err);
-            _this.props.onS3Load(err, null);
+            // update state
+            assetRetrievalStateHandler(null, res.text);
+
+            // @TODO handle blob retrieval
           });
         }
-      }
-    }, _this.assetUploadStateHandlerGen = function () {
+      }).catch(function (err) {
+        return errorHandle(err);
+      });
+    }, _this.assetRetrievalStateHandlerGen = function () {
       var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
       return function (err, data) {
         if (err) {
           // update loader to failure
-          _this.setState({
-            loadingState: 'failure',
-            loadMessage: 'Upload Failed - ' + err.message
-          });
+          _this.setFailure();
         } else if (data) {
           // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
           var waitTime = Math.max(0, _this.props.minLoadTime - +new Date() + startTime);
           if (waitTime) {
-            setTimeout(_this.setSuccess, waitTime);
+            setTimeout(_this.setNotLoading, waitTime);
           } else {
-            _this.setSuccess();
+            _this.setNotLoading();
           }
         } else {
           // update loader to failure
-          _this.setState({
-            loadingState: 'failure',
-            loadMessage: 'Upload Failed - Please Try Again'
-          });
+          _this.setFailure();
         }
       };
-    }, _this.setSuccess = function () {
+    }, _this.errorHandle = function (assetRetrievalStateHandler, err) {
+      if (_this.props.onS3Url) _this.props.onS3Url(err, null);
+      if (_this.props.onS3Res) _this.props.onS3Res(err, null);
+      assetRetrievalStateHandler(err, null);
+    }, _this.updateUrl = function (fileLink, cb) {
+      if (!_this.props.href && !_this.props.fileLink) {
+        _this.setState({
+          fileLink: fileLink,
+          loaded: true
+        }, cb);
+      }
+    }, _this.setNotLoaded = function (cb) {
       _this.setState({
-        loadingState: 'success',
-        loadMessage: 'Upload Success!'
-      });
+        loaded: false
+      }, cb);
+    }, _this.setLoading = function () {
+      if (_this.state.loadingState !== 'loading') {
+        _this.setState({
+          loadingState: 'loading'
+        });
+      }
+    }, _this.setFailure = function () {
+      if (_this.state.loadingState !== 'failure') {
+        _this.setState({
+          loadingState: 'failure'
+        });
+      }
+    }, _this.setNotLoading = function () {
+      if (_this.state.loadingState !== 'notLoading') {
+        _this.setState({
+          loadingState: 'notLoading'
+        });
+      }
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -198,52 +211,45 @@ var RetrievalButton = function (_Component) {
       var _props = this.props;
       var className = _props.className;
       var style = _props.style;
-      var inputClass = _props.inputClass;
-      var inputStyle = _props.inputStyle;
+      var autoLoad = _props.autoLoad;
+      var noMessage = _props.noMessage;
       var messageClass = _props.messageClass;
       var messageStyle = _props.messageStyle;
-      var pristineClass = _props.pristineClass;
+      var notLoadingClass = _props.notLoadingClass;
       var loadingClass = _props.loadingClass;
-      var successClass = _props.successClass;
       var failureClass = _props.failureClass;
       var initialLoadState = _props.initialLoadState;
       var minLoadTime = _props.minLoadTime;
-      var maxSize = _props.maxSize;
-      var onBlobLoad = _props.onBlobLoad;
-      var onS3Load = _props.onS3Load;
+      var onS3Url = _props.onS3Url;
       var signingRoute = _props.signingRoute;
-      var accept = _props.accept;
-      var type = _props.type;
+      var href = _props.href;
+      var fileLink = _props.fileLink;
 
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'messageClass', 'messageStyle', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute', 'accept', 'type']);
-
-      var acceptableFileExtensions = accept || acceptableExtensionsMap[type].map(function (val) {
-        return '.' + val;
-      });
+      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'onS3Url', 'signingRoute', 'href', 'fileLink']);
 
       return _react2.default.createElement(
-        'label',
+        'a',
         _extends({
-          htmlFor: this.uniqueId,
-          className: 'simple-file-input-container ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
-          style: style
+          id: this.uniqueId,
+          target: '_blank',
+          className: 'retrieval-button ' + (className || '') + ' ' + this.props[(autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState) + 'Class'],
+          style: _extends({}, this.state.loadingState === 'loading' ? {
+            cursor: 'default'
+          } : {
+            cursor: 'pointer'
+          }, {
+            textDecoration: 'none'
+          }, style),
+          onClick: !this.state.loaded && this.onClick,
+          href: this.state.loaded && (fileLink || href || this.state.fileLink) || 'javascript:void(0)' // eslint-disable-line
         }, otherProps),
-        _react2.default.createElement('input', {
-          className: 'simple-file-input-input ' + (inputClass || ''),
-          style: _extends({}, !inputClass && { display: 'none' } || {}, inputStyle),
-          type: 'file',
-          accept: acceptableFileExtensions,
-          onChange: this.onChange.bind(this, acceptableFileExtensions),
-          name: this.uniqueId,
-          id: this.uniqueId
-        }),
-        _react2.default.createElement(
+        !noMessage && _react2.default.createElement(
           'span',
           {
-            className: 'simple-file-input-message ' + (messageClass || ''),
+            className: 'retrieval-button-message ' + messageClass,
             style: messageStyle
           },
-          this.state.loadMessage
+          this.props[this.state.loadingState + 'Message']
         )
       );
     }
@@ -262,9 +268,18 @@ RetrievalButton.propTypes = {
   // loading state classes
   notLoadingClass: _react.PropTypes.string,
   loadingClass: _react.PropTypes.string,
+  failureClass: _react.PropTypes.string,
+
+  // loading state messages
+  noMessage: _react.PropTypes.bool,
+  notLoadingMessage: _react.PropTypes.string,
+  successMessage: _react.PropTypes.string,
+  failureMessage: _react.PropTypes.string,
 
   // initial icon state
-  initialLoadState: _react.PropTypes.oneOf(['notLoading', 'loading']),
+  autoLoad: _react.PropTypes.bool, // loads fileName specified on mount and onchange
+  openOnRetrieve: _react.PropTypes.bool, // determines if file is opened automatically
+  initialLoadState: _react.PropTypes.oneOf(['notLoading', 'loading', '']),
 
   // helps smooth aesthetic
   minLoadTime: _react.PropTypes.number,
@@ -274,26 +289,36 @@ RetrievalButton.propTypes = {
   // S3 signature getting route
   signingRoute: _react.PropTypes.string,
 
-  // triggered when s3 upload is done, if function is provided
-  onS3Load: _react.PropTypes.func,
-  // triggered when blob is loaded if provided
-  onBlobLoad: _react.PropTypes.func
+  // uploaded file link
+  fileLink: _react.PropTypes.string,
+  href: _react.PropTypes.string,
+
+  // triggered when s3 url retrieval is done
+  onS3Url: _react.PropTypes.func,
+  // triggered with s3 url get response
+  onS3Res: _react.PropTypes.func
 };
 RetrievalButton.defaultProps = {
   // 100MB (unit is bytes)
   maxSize: 100000000,
 
   // sets minimum amount of time before loader clears
-  minLoadTime: 125,
+  minLoadTime: 0,
 
   // default style objects to empty object
   style: {},
   inputStyle: {},
   messageStyle: {},
 
+  // default state-dependent messages
+  notLoadingMessage: '',
+  successMessage: 'Download Success!',
+  failureMessage: 'Download Failed - Please Try Again',
+
   // default to font awesome class names
-  pristineClass: 'fa fa-upload',
-  loadingClass: 'fa fa-spinner fa-spin'
+  notLoadingClass: 'fa fa-download',
+  loadingClass: 'fa fa-spinner fa-spin',
+  failureClass: 'fa fa-thumbs-o-down'
 };
 
 

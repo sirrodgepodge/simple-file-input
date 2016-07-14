@@ -387,7 +387,7 @@ var RetrievalButton = function (_Component2) {
 
         // update URL with fetched URL
         _this2.updateUrl(res.body.signedRequest, function () {
-          return !_this2.props.autoLoad && document.getElementById(_this2.uniqueId).click();
+          return winodw.open(res.body.signedRequest, '_blank');
         });
 
         // set Loaded to back to false once expired
