@@ -352,7 +352,7 @@ var RetrievalButton = function (_Component2) {
     }, _this2.componentWillReceiveProps = function (nextProps) {
       // hacky check for isMounted
       if (_this2.props.autoLoad && _this2.props.fileName !== nextProps.fileName) {
-        _this2.assetRetrieve(nextProps.fileName);
+        _this2.assetRetrieve(nextProps.remoteFolder ? (0, _isoPathJoin2.default)(nextProps.remoteFolder, nextProps.fileName) : nextProps.fileName);
       }
     }, _this2.onClick = function () {
       if (!_this2.props.autoLoad) {
@@ -360,7 +360,7 @@ var RetrievalButton = function (_Component2) {
         _this2.assetRetrieve();
       }
     }, _this2.assetRetrieve = function (fileName) {
-      fileName = fileName || _this2.props.fileName;
+      fileName = fileName || _this2.props.remoteFolder ? (0, _isoPathJoin2.default)(nextProps.remoteFolder, _this2.props.fileName) : _this2.props.fileName;
 
       if (!fileName || !_this2.props.signingRoute) {
         console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
@@ -560,6 +560,8 @@ RetrievalButton.propTypes = {
 
   // overrides uploaded file's name
   fileName: _react.PropTypes.string,
+  // specifies S3 folder path inside of bucket
+  remoteFolder: _react.PropTypes.string,
   // S3 signature getting route
   signingRoute: _react.PropTypes.string,
 
@@ -578,6 +580,9 @@ RetrievalButton.defaultProps = {
 
   // sets minimum amount of time before loader clears
   minLoadTime: 0,
+
+  // string to append to fileName
+  remoteFolder: '',
 
   // default style objects to empty object
   style: {},
