@@ -51,6 +51,9 @@ class SimpleFileInput extends Component {
     // maximum file size (in bytes)
     maxSize: PropTypes.number,
 
+    // triggered when upload begins
+    onLoadStart: PropTypes.func,
+
     // triggered when blob is loaded if provided
     onBlobLoad: PropTypes.func,
 
@@ -108,9 +111,7 @@ class SimpleFileInput extends Component {
     if(!event.target.files.length) return;
 
     // update loader state to loading
-    this.setState({
-      loadingState: 'loading'
-    });
+    this.setLoading();
 
     // load in input asset
     this.assetUpload(event, +new Date(), acceptableFileExtensions);
@@ -135,10 +136,16 @@ class SimpleFileInput extends Component {
 
     // compose upload state handler
     const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
+    const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
 
-    if(size > this.props.maxSize) return assetUploadStateHandler(new Error(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`), null);
-    if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`), null);
+    if(size > this.props.maxSize) return errorHandle(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`);
+    if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`);
     else {
+      // trigger 'onLoadStart' function if provided
+      if(this.props.onLoadStart && typeof this.props.onLoadStart === 'function') {
+        this.props.onLoadStart(null, fileInfoObj);
+      }
+
       // // Handles immediate return of Data URI
       if(this.props.onBlobLoad && typeof this.props.onBlobLoad === 'function') {
         const reader = new FileReader();
@@ -220,10 +227,35 @@ class SimpleFileInput extends Component {
     }
   };
 
+  errorHandle = (assetUploadStateHandler, err) => {
+    if(this.props.onLoadStart) this.props.onLoadStart(err, null);
+    if(this.props.onS3Load) this.props.onS3Load(err, null);
+    if(this.props.onBlobLoad) this.props.onBlobLoad(err, null);
+    assetUploadStateHandler(err, null);
+  }
+
+  setLoading = () => {
+    if(this.state.loadingState !== 'loading') {
+      this.setState({
+        loadingState: 'loading'
+      });
+    }
+  }
+
   setSuccess = () => {
-    this.setState({
-      loadingState: 'success'
-    });
+    if(this.state.loadingState !== 'success') {
+      this.setState({
+        loadingState: 'success'
+      });
+    }
+  }
+
+  setFailure = () => {
+    if(this.state.loadingState !== 'failure') {
+      this.setState({
+        loadingState: 'failure'
+      });
+    }
   }
 
   render() {
@@ -337,6 +369,8 @@ class RetrievalButton extends Component {
     fileLink: PropTypes.string,
     href: PropTypes.string,
 
+    // triggered when loading begins
+    onLoadStart: PropTypes.func,
     // triggered when s3 url retrieval is done
     onS3Url: PropTypes.func,
     // triggered with s3 url get response
@@ -411,7 +445,7 @@ class RetrievalButton extends Component {
     const startTime = +new Date();
 
     // update loader state to loading
-    this.setLoading();
+    this.setLoading(this.props.onLoadStart);
 
     // compose upload state handler
     const assetRetrievalStateHandler = this.assetRetrievalStateHandlerGen(startTime);
@@ -494,16 +528,22 @@ class RetrievalButton extends Component {
   }
 
   setNotLoaded = cb => {
-    this.setState({
-      loaded: false
-    }, cb);
+    if(this.state.loaded) {
+      this.setState({
+        loaded: false
+      }, cb);
+    } else {
+      cb();
+    }
   }
 
-  setLoading = () => {
+  setLoading = cb => {
     if(this.state.loadingState !== 'loading') {
       this.setState({
         loadingState: 'loading'
-      });
+      }, cb);
+    } else {
+      cb();
     }
   }
 

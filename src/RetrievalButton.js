@@ -57,6 +57,8 @@ class RetrievalButton extends Component {
     fileLink: PropTypes.string,
     href: PropTypes.string,
 
+    // triggered when loading begins
+    onLoadStart: PropTypes.func,
     // triggered when s3 url retrieval is done
     onS3Url: PropTypes.func,
     // triggered with s3 url get response
@@ -131,7 +133,7 @@ class RetrievalButton extends Component {
     const startTime = +new Date();
 
     // update loader state to loading
-    this.setLoading();
+    this.setLoading(this.props.onLoadStart);
 
     // compose upload state handler
     const assetRetrievalStateHandler = this.assetRetrievalStateHandlerGen(startTime);
@@ -214,16 +216,22 @@ class RetrievalButton extends Component {
   }
 
   setNotLoaded = cb => {
-    this.setState({
-      loaded: false
-    }, cb);
+    if(this.state.loaded) {
+      this.setState({
+        loaded: false
+      }, cb);
+    } else {
+      cb();
+    }
   }
 
-  setLoading = () => {
+  setLoading = cb => {
     if(this.state.loadingState !== 'loading') {
       this.setState({
         loadingState: 'loading'
-      });
+      }, cb);
+    } else {
+      cb();
     }
   }
 

@@ -86,7 +86,7 @@ var RetrievalButton = function (_Component) {
         _this.assetRetrieve();
       }
     }, _this.assetRetrieve = function (fileName) {
-      fileName = fileName || _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, _this.props.fileName) : _this.props.fileName;
+      fileName = fileName || (_this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, _this.props.fileName) : _this.props.fileName);
 
       if (!fileName || !_this.props.signingRoute) {
         console.error('need to add fileName prop and signingRoute prop in order to retrieve files');
@@ -250,7 +250,8 @@ var RetrievalButton = function (_Component) {
             style: messageStyle
           },
           this.props[this.state.loadingState + 'Message']
-        )
+        ),
+        this.props.children
       );
     }
   }]);

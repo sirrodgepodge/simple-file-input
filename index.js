@@ -75,9 +75,7 @@ var SimpleFileInput = function (_Component) {
       if (!event.target.files.length) return;
 
       // update loader state to loading
-      _this.setState({
-        loadingState: 'loading'
-      });
+      _this.setLoading();
 
       // load in input asset
       _this.assetUpload(event, +new Date(), acceptableFileExtensions);
@@ -99,9 +97,15 @@ var SimpleFileInput = function (_Component) {
 
       // compose upload state handler
       var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+      var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
 
-      if (size > _this.props.maxSize) return assetUploadStateHandler(new Error('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB'), null);
-      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return assetUploadStateHandler(new Error('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', ')), null);else {
+      if (size > _this.props.maxSize) return errorHandle('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB');
+      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', '));else {
+        // trigger 'onLoadStart' function if provided
+        if (_this.props.onLoadStart && typeof _this.props.onLoadStart === 'function') {
+          _this.props.onLoadStart(null, fileInfoObj);
+        }
+
         // // Handles immediate return of Data URI
         if (_this.props.onBlobLoad && typeof _this.props.onBlobLoad === 'function') {
           var reader = new FileReader();
@@ -175,10 +179,29 @@ var SimpleFileInput = function (_Component) {
           });
         }
       };
+    }, _this.errorHandle = function (assetUploadStateHandler, err) {
+      if (_this.props.onLoadStart) _this.props.onLoadStart(err, null);
+      if (_this.props.onS3Load) _this.props.onS3Load(err, null);
+      if (_this.props.onBlobLoad) _this.props.onBlobLoad(err, null);
+      assetUploadStateHandler(err, null);
+    }, _this.setLoading = function () {
+      if (_this.state.loadingState !== 'loading') {
+        _this.setState({
+          loadingState: 'loading'
+        });
+      }
     }, _this.setSuccess = function () {
-      _this.setState({
-        loadingState: 'success'
-      });
+      if (_this.state.loadingState !== 'success') {
+        _this.setState({
+          loadingState: 'success'
+        });
+      }
+    }, _this.setFailure = function () {
+      if (_this.state.loadingState !== 'failure') {
+        _this.setState({
+          loadingState: 'failure'
+        });
+      }
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -293,6 +316,9 @@ SimpleFileInput.propTypes = {
   // maximum file size (in bytes)
   maxSize: _react.PropTypes.number,
 
+  // triggered when upload begins
+  onLoadStart: _react.PropTypes.func,
+
   // triggered when blob is loaded if provided
   onBlobLoad: _react.PropTypes.func,
 
@@ -380,7 +406,7 @@ var RetrievalButton = function (_Component2) {
       var startTime = +new Date();
 
       // update loader state to loading
-      _this2.setLoading();
+      _this2.setLoading(_this2.props.onLoadStart);
 
       // compose upload state handler
       var assetRetrievalStateHandler = _this2.assetRetrievalStateHandlerGen(startTime);
@@ -458,14 +484,20 @@ var RetrievalButton = function (_Component2) {
         }, cb);
       }
     }, _this2.setNotLoaded = function (cb) {
-      _this2.setState({
-        loaded: false
-      }, cb);
-    }, _this2.setLoading = function () {
+      if (_this2.state.loaded) {
+        _this2.setState({
+          loaded: false
+        }, cb);
+      } else {
+        cb();
+      }
+    }, _this2.setLoading = function (cb) {
       if (_this2.state.loadingState !== 'loading') {
         _this2.setState({
           loadingState: 'loading'
-        });
+        }, cb);
+      } else {
+        cb();
       }
     }, _this2.setFailure = function () {
       if (_this2.state.loadingState !== 'failure') {
@@ -579,6 +611,8 @@ RetrievalButton.propTypes = {
   fileLink: _react.PropTypes.string,
   href: _react.PropTypes.string,
 
+  // triggered when loading begins
+  onLoadStart: _react.PropTypes.func,
   // triggered when s3 url retrieval is done
   onS3Url: _react.PropTypes.func,
   // triggered with s3 url get response
