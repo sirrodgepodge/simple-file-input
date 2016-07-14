@@ -149,8 +149,8 @@ class RetrievalButton extends Component {
       if(this.props.onS3Url) this.props.onS3Url(null, res.body.signedRequest);
 
       // update URL with fetched URL
-      this.updateUrl(res.body.signedRequest, () =>
-        window.open(res.body.signedRequest, '_blank'));
+      this.updateUrl(res.body.signedRequest, !this.props.autoLoad ?
+        () => window.open(res.body.signedRequest, '_blank') : null);
 
       // set Loaded to back to false once expired
       setTimeout(() =>
@@ -304,5 +304,6 @@ class RetrievalButton extends Component {
     );
   }
 }
+
 
 module.exports = RetrievalButton;

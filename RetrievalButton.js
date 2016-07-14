@@ -112,9 +112,9 @@ var RetrievalButton = function (_Component) {
         if (_this.props.onS3Url) _this.props.onS3Url(null, res.body.signedRequest);
 
         // update URL with fetched URL
-        _this.updateUrl(res.body.signedRequest, function () {
+        _this.updateUrl(res.body.signedRequest, !_this.props.autoLoad ? function () {
           return window.open(res.body.signedRequest, '_blank');
-        });
+        } : null);
 
         // set Loaded to back to false once expired
         setTimeout(function () {
