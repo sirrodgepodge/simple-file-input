@@ -89,6 +89,14 @@ var SimpleFileInput = function (_Component) {
           type = fileObj.type,
           size = fileObj.size;
 
+      var fileInfoObj = {
+        ext: ext,
+        type: type,
+        size: size,
+        name: name,
+        nameWithFolder: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name
+      };
+
       // compose upload state handler
       var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
 
@@ -102,13 +110,13 @@ var SimpleFileInput = function (_Component) {
           // send blob load error to callback
           reader.onerror = function (err) {
             if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(err, null);
-            _this.props.onBlobLoad(err, null);
+            _this.props.onBlobLoad(err, null, fileInfoObj);
           };
 
           // sends blob to callback
           reader.onloadend = function (e) {
             if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
-            _this.props.onBlobLoad(null, e.target.result);
+            _this.props.onBlobLoad(null, e.target.result, fileInfoObj);
           };
         }
 
@@ -129,18 +137,18 @@ var SimpleFileInput = function (_Component) {
 
               if (error) {
                 assetUploadStateHandler(error, null);
-                return _this.props.onS3Load(error, null);
+                return _this.props.onS3Load(error, null, fileInfoObj);
               }
 
               // run state handler
               assetUploadStateHandler(null, res.body.url);
 
               // execute callback with S3 stored file name
-              _this.props.onS3Load(null, res.body.url, _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name, name);
+              _this.props.onS3Load(null, res.body.url, fileInfoObj);
             });
           }).catch(function (err) {
             assetUploadStateHandler(err, null);
-            _this.props.onS3Load(err, null);
+            _this.props.onS3Load(err, null, fileInfoObj);
           });
         }
       }

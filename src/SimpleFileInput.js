@@ -125,6 +125,14 @@ class SimpleFileInput extends Component {
       type = fileObj.type,
       size = fileObj.size;
 
+    const fileInfoObj = {
+      ext,
+      type,
+      size,
+      name,
+      nameWithFolder: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name
+    };
+
     // compose upload state handler
     const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
 
@@ -140,14 +148,14 @@ class SimpleFileInput extends Component {
         reader.onerror = err => {
           if(!this.props.onS3Load || !this.props.signingRoute)
             assetUploadStateHandler(err, null);
-          this.props.onBlobLoad(err, null);
+          this.props.onBlobLoad(err, null, fileInfoObj);
         };
 
         // sends blob to callback
         reader.onloadend = e => {
           if(!this.props.onS3Load || !this.props.signingRoute)
             assetUploadStateHandler(null, e.target.result);
-          this.props.onBlobLoad(null, e.target.result);
+          this.props.onBlobLoad(null, e.target.result, fileInfoObj);
         };
       }
 
@@ -171,19 +179,19 @@ class SimpleFileInput extends Component {
 
               if(error) {
                 assetUploadStateHandler(error, null);
-                return this.props.onS3Load(error, null);
+                return this.props.onS3Load(error, null, fileInfoObj);
               }
 
               // run state handler
               assetUploadStateHandler(null, res.body.url);
 
               // execute callback with S3 stored file name
-              this.props.onS3Load(null, res.body.url, this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name, name);
+              this.props.onS3Load(null, res.body.url, fileInfoObj);
             });
         })
         .catch(err => {
           assetUploadStateHandler(err, null);
-          this.props.onS3Load(err, null);
+          this.props.onS3Load(err, null, fileInfoObj);
         });
       }
     }
