@@ -18,48 +18,33 @@ const acceptableExtensionsMap = {
 };
 
 
-module.exports = class FileInput extends Component {
+class RetrievalButton extends Component {
   static propTypes = {
     // styling
     className: PropTypes.string,
     style: PropTypes.object,
-    inputClass: PropTypes.string,
-    inputStyle: PropTypes.object,
     messageClass: PropTypes.string,
     messageStyle: PropTypes.object,
 
     // loading state classes
-    pristineClass: PropTypes.string,
+    notLoadingClass: PropTypes.string,
     loadingClass: PropTypes.string,
-    successClass: PropTypes.string,
-    failureClass: PropTypes.string,
 
     // initial icon state
-    initialLoadState: PropTypes.oneOf(['pristine', 'loading', 'success', 'failure']),
+    initialLoadState: PropTypes.oneOf(['notLoading', 'loading']),
 
     // helps smooth aesthetic
     minLoadTime: PropTypes.number,
 
-    // maximum file size (in bytes)
-    maxSize: PropTypes.number,
-
-    // triggered when blob is loaded if provided
-    onBlobLoad: PropTypes.func,
+    // overrides uploaded file's name
+    fileName: PropTypes.string,
+    // S3 signature getting route
+    signingRoute: PropTypes.string,
 
     // triggered when s3 upload is done, if function is provided
     onS3Load: PropTypes.func,
-    // S3 signature getting route
-    signingRoute: PropTypes.string,
-    // overrides uploaded file's name
-    fileName: PropTypes.string,
-    // overrides default string appended to file name
-    fileAppend: PropTypes.string,
-    // folder to prepend to file name
-    remoteFolder: PropTypes.string,
-
-    // specifies acceptable file types
-    type: PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
-    accept: PropTypes.array, // allow user to specify extensions
+    // triggered when blob is loaded if provided
+    onBlobLoad: PropTypes.func
   }
 
   static defaultProps = {
@@ -76,9 +61,7 @@ module.exports = class FileInput extends Component {
 
     // default to font awesome class names
     pristineClass: 'fa fa-upload',
-    loadingClass: 'fa fa-spinner fa-spin',
-    successClass: 'fa fa-thumbs-o-up',
-    failureClass: 'fa fa-thumbs-o-down'
+    loadingClass: 'fa fa-spinner fa-spin'
   }
 
   state = {
@@ -272,3 +255,5 @@ module.exports = class FileInput extends Component {
     );
   }
 }
+
+module.exports = RetrievalButton;

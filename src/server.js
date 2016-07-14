@@ -68,7 +68,7 @@ export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucke
     ...otherOptions
   })
   .then(data => Promise.resolve({
-    signed_request: data,
+    signedRequest: data,
     url: getObjectUrl(bucket || config.s3Bucket, name || reqName)
   }))
   .catch(err => {
@@ -77,6 +77,31 @@ export const signUploadToS3 = ({name: reqName, type} = {}, {name, expires, bucke
   });
 };
 
-export const signGetFromS3 = () => {
+export const signGetFromS3 = (name, {bucket, expires, ...otherOptions} = {}) => {
+  // allow key to be provided as a string
+  const Key = typeof name === 'object' && name !== null ? name.name : name;
 
+  // catching argument errors
+  if(typeof s3.getSignedUrlAsync !== 'function')
+    return console.log(new Error(`Need to run the 'initS3' method prior to using helper functions`));
+
+  if(typeof bucket !== 'string' && typeof config.s3Bucket !== 'string')
+    return console.log(new Error(`must provide 'bucket' property as string either via 'setBucket' method or options object (second argument)`));
+
+  if(typeof Key !== 'string')
+    return console.log(new Error(`must provide 'name' as either string in first argument or string property on object in first argument`));
+
+  return s3.getSignedUrlAsync('getObject', {
+    Bucket: bucket || config.s3Bucket || null,
+    Key,
+    Expires: expires || 300, // default to 5 minutes
+    ...otherOptions
+  })
+  .then(data => Promise.resolve({
+    signedRequest: data
+  }))
+  .catch(err => {
+    console.log('Failed to get back end S3 signature for front end image upload to S3: ', err);
+    return Promise.reject(err);
+  });
 };
