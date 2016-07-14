@@ -412,7 +412,7 @@ class RetrievalButton extends Component {
 
       // update URL with fetched URL
       this.updateUrl(res.body.signedRequest, () =>
-        winodw.open(res.body.signedRequest, '_blank'));
+        window.open(res.body.signedRequest, '_blank'));
 
       // set Loaded to back to false once expired
       setTimeout(() =>
