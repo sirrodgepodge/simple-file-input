@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
 // utilities
-import shortId from 'shortid';
 import simpleIsoFetch from 'simple-iso-fetch';
 import {parse as parseQueryString} from 'querystring';
 import pathJoin from 'iso-path-join';
@@ -96,8 +95,6 @@ class RetrievalButton extends Component {
     loaded: false,
     fileLink: ''
   }
-
-  uniqueId = shortId.generate()
 
   componentDidMount = () => {
     // load in fileName asset on mount
@@ -273,7 +270,6 @@ class RetrievalButton extends Component {
 
     return (
       <a
-        id={this.uniqueId}
         target='_blank'
         className={`retrieval-button ${className || ''} ${this.props[`${autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState}Class`]}`}
         style={{...(this.state.loadingState === 'loading' ? {
