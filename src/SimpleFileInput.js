@@ -419,8 +419,6 @@ class RetrievalButton extends Component {
     fileLink: ''
   }
 
-  uniqueId = shortId.generate()
-
   componentDidMount = () => {
     // load in fileName asset on mount
     if(this.props.autoLoad && this.props.fileName) {
@@ -595,7 +593,6 @@ class RetrievalButton extends Component {
 
     return (
       <a
-        id={this.uniqueId}
         target='_blank'
         className={`retrieval-button ${className || ''} ${this.props[`${autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState}Class`]}`}
         style={{...(this.state.loadingState === 'loading' ? {

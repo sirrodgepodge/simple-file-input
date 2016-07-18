@@ -389,7 +389,7 @@ var RetrievalButton = function (_Component2) {
       loadingState: _this2.props.initialLoadState || 'notLoading',
       loaded: false,
       fileLink: ''
-    }, _this2.uniqueId = _shortid2.default.generate(), _this2.componentDidMount = function () {
+    }, _this2.componentDidMount = function () {
       // load in fileName asset on mount
       if (_this2.props.autoLoad && _this2.props.fileName) {
         _this2.assetRetrieve();
@@ -555,7 +555,6 @@ var RetrievalButton = function (_Component2) {
       return _react2.default.createElement(
         'a',
         _extends({
-          id: this.uniqueId,
           target: '_blank',
           className: 'retrieval-button ' + (className || '') + ' ' + this.props[(autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState) + 'Class'],
           style: _extends({}, this.state.loadingState === 'loading' ? {

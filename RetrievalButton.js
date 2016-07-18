@@ -8,10 +8,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _shortid = require('shortid');
-
-var _shortid2 = _interopRequireDefault(_shortid);
-
 var _simpleIsoFetch = require('simple-iso-fetch');
 
 var _simpleIsoFetch2 = _interopRequireDefault(_simpleIsoFetch);
@@ -70,7 +66,7 @@ var RetrievalButton = function (_Component) {
       loadingState: _this.props.initialLoadState || 'notLoading',
       loaded: false,
       fileLink: ''
-    }, _this.uniqueId = _shortid2.default.generate(), _this.componentDidMount = function () {
+    }, _this.componentDidMount = function () {
       // load in fileName asset on mount
       if (_this.props.autoLoad && _this.props.fileName) {
         _this.assetRetrieve();
@@ -236,7 +232,6 @@ var RetrievalButton = function (_Component) {
       return _react2.default.createElement(
         'a',
         _extends({
-          id: this.uniqueId,
           target: '_blank',
           className: 'retrieval-button ' + (className || '') + ' ' + this.props[(autoLoad && this.state.loadingState === 'loading' ? 'notLoading' : this.state.loadingState) + 'Class'],
           style: _extends({}, this.state.loadingState === 'loading' ? {
