@@ -291,7 +291,8 @@ class SimpleFileInput extends Component {
       ...otherProps
     } = this.props;
 
-    const acceptableFileExtensions = accept || acceptableExtensionsMap[type].map(val => `.${val}`);
+    const acceptableFileExtensions = (accept || acceptableExtensionsMap[type])
+      .map(val => (""+val)[0] !== '.' ? `.${val}` : val);
 
     return (
       <label

@@ -246,8 +246,8 @@ var SimpleFileInput = function (_Component) {
 
       var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'messageClass', 'messageStyle', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute', 'accept', 'type']);
 
-      var acceptableFileExtensions = accept || acceptableExtensionsMap[type].map(function (val) {
-        return '.' + val;
+      var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
+        return ("" + val)[0] !== '.' ? '.' + val : val;
       });
 
       return _react2.default.createElement(
