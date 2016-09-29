@@ -56,7 +56,7 @@ var SimpleFileInput = function (_Component) {
   _inherits(SimpleFileInput, _Component);
 
   function SimpleFileInput() {
-    var _Object$getPrototypeO;
+    var _ref;
 
     var _temp, _this, _ret;
 
@@ -66,11 +66,12 @@ var SimpleFileInput = function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(SimpleFileInput)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SimpleFileInput.__proto__ || Object.getPrototypeOf(SimpleFileInput)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       loadingState: _this.props.initialLoadState || 'pristine'
     }, _this.uniqueId = _shortid2.default.generate(), _this.getUnique = function () {
       return (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_');
     }, _this.onChange = function (acceptableFileExtensions, event) {
+
       // handle cancel
       if (!event.target.files.length) return;
 
@@ -146,7 +147,7 @@ var SimpleFileInput = function (_Component) {
               type: type
             }
           }).then(function (res) {
-            _superagent2.default.put(res.body.signedRequest, fileObj).end(function (err, final) {
+            _superagent2.default.put(res.body.signedRequest, fileObj).set('Content-Type', type).end(function (err, final) {
               var error = err || final.error;
 
               if (error) {
@@ -167,7 +168,7 @@ var SimpleFileInput = function (_Component) {
         }
       }
     }, _this.assetUploadStateHandlerGen = function () {
-      var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+      var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       return function (err, data) {
         if (err) {
           // update loader to failure
@@ -251,12 +252,25 @@ var SimpleFileInput = function (_Component) {
       });
 
       return _react2.default.createElement(
-        'label',
-        _extends({
-          htmlFor: this.uniqueId,
-          className: 'simple-file-input-container ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
-          style: style
-        }, otherProps),
+        'div',
+        null,
+        _react2.default.createElement(
+          'label',
+          _extends({
+            htmlFor: this.uniqueId,
+            className: 'simple-file-input-container ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
+            style: style
+          }, otherProps),
+          !this.props.noMessage && _react2.default.createElement(
+            'span',
+            {
+              className: 'simple-file-input-message ' + (messageClass || ''),
+              style: messageStyle
+            },
+            this.props[this.state.loadingState + 'Message']
+          ),
+          this.props.children
+        ),
         _react2.default.createElement('input', {
           className: 'simple-file-input-input ' + (inputClass || ''),
           style: _extends({}, !inputClass && { display: 'none' } || {}, inputStyle),
@@ -265,16 +279,7 @@ var SimpleFileInput = function (_Component) {
           onChange: this.onChange.bind(this, acceptableFileExtensions),
           name: this.uniqueId,
           id: this.uniqueId
-        }),
-        !this.props.noMessage && _react2.default.createElement(
-          'span',
-          {
-            className: 'simple-file-input-message ' + (messageClass || ''),
-            style: messageStyle
-          },
-          this.props[this.state.loadingState + 'Message']
-        ),
-        this.props.children
+        })
       );
     }
   }]);
@@ -375,7 +380,7 @@ var RetrievalButton = function (_Component2) {
   _inherits(RetrievalButton, _Component2);
 
   function RetrievalButton() {
-    var _Object$getPrototypeO2;
+    var _ref2;
 
     var _temp2, _this2, _ret2;
 
@@ -385,7 +390,7 @@ var RetrievalButton = function (_Component2) {
       args[_key2] = arguments[_key2];
     }
 
-    return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_Object$getPrototypeO2 = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO2, [this].concat(args))), _this2), _this2.state = {
+    return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_ref2 = RetrievalButton.__proto__ || Object.getPrototypeOf(RetrievalButton)).call.apply(_ref2, [this].concat(args))), _this2), _this2.state = {
       loadingState: _this2.props.initialLoadState || 'notLoading',
       loaded: false,
       fileLink: ''
@@ -464,7 +469,7 @@ var RetrievalButton = function (_Component2) {
         return errorHandle(err);
       });
     }, _this2.assetRetrievalStateHandlerGen = function () {
-      var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+      var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       return function (err, data) {
         if (err) {
           // update loader to failure
