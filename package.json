@@ -7,7 +7,7 @@
     "gitAddBuilt": "git add ./index.js; git add ./server.js; git add ./src/SimpleFileInput.js; git add ./src/RetrievalButton.js; git add ./src/server.js"
   },
   "pre-commit": [
-    "build",
+    "build"
   ],
   "keywords": [
     "aws",
