@@ -277,10 +277,12 @@ class SimpleFileInput extends Component {
       style,
       inputClass,
       inputStyle,
+      noMessage,
       messageClass,
       messageStyle,
       accept,
       type,
+      children,
 
       // props not fed to UI
       pristineMessage,  // eslint-disable-line no-unused-vars
@@ -313,7 +315,7 @@ class SimpleFileInput extends Component {
           {...otherProps}
         >
           {
-            !this.props.noMessage
+            !noMessage
             &&
             <span
               className={`simple-file-input-message ${messageClass || ''}`}
@@ -323,7 +325,7 @@ class SimpleFileInput extends Component {
             </span>
           }
           {
-            this.props.children
+            children
           }
         </label>
         <input

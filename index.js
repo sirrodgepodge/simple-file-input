@@ -230,10 +230,12 @@ var SimpleFileInput = function (_Component) {
       var style = _props.style;
       var inputClass = _props.inputClass;
       var inputStyle = _props.inputStyle;
+      var noMessage = _props.noMessage;
       var messageClass = _props.messageClass;
       var messageStyle = _props.messageStyle;
       var accept = _props.accept;
       var type = _props.type;
+      var children = _props.children;
       var pristineMessage = _props.pristineMessage;
       var loadingMessage = _props.loadingMessage;
       var successMessage = _props.successMessage;
@@ -250,7 +252,7 @@ var SimpleFileInput = function (_Component) {
       var onS3Load = _props.onS3Load;
       var signingRoute = _props.signingRoute;
 
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'messageClass', 'messageStyle', 'accept', 'type', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
+      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
 
       var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
         return ("" + val)[0] !== '.' ? '.' + val : val;
@@ -266,7 +268,7 @@ var SimpleFileInput = function (_Component) {
             className: 'simple-file-input-container ' + (className || '') + ' ' + this.props[this.state.loadingState + 'Class'],
             style: style
           }, otherProps),
-          !this.props.noMessage && _react2.default.createElement(
+          !noMessage && _react2.default.createElement(
             'span',
             {
               className: 'simple-file-input-message ' + (messageClass || ''),
@@ -274,7 +276,7 @@ var SimpleFileInput = function (_Component) {
             },
             this.props[this.state.loadingState + 'Message']
           ),
-          this.props.children
+          children
         ),
         _react2.default.createElement('input', {
           className: 'simple-file-input-input ' + (inputClass || ''),
