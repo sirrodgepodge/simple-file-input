@@ -107,6 +107,7 @@ class SimpleFileInput extends Component {
   getUnique = () => (`${Number(new Date()).toString()}_${shortId.generate()}`).replace(urlSafe, '_')
 
   onChange = (acceptableFileExtensions, event) => {
+
     // handle cancel
     if(!event.target.files.length) return;
 
@@ -115,6 +116,7 @@ class SimpleFileInput extends Component {
 
     // load in input asset
     this.assetUpload(event, +new Date(), acceptableFileExtensions);
+
   }
 
   // asset uploading function
@@ -191,6 +193,7 @@ class SimpleFileInput extends Component {
         })
         .then(res => {
           request.put(res.body.signedRequest, fileObj)
+            .set('Content-Type', type)
             .end((err, final) => {
               const error = err || final.error;
 
@@ -295,12 +298,27 @@ class SimpleFileInput extends Component {
       .map(val => (""+val)[0] !== '.' ? `.${val}` : val);
 
     return (
-      <label
-        htmlFor={this.uniqueId}
-        className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
-        style={style}
-        {...otherProps}
-      >
+      <div>
+        <label
+          htmlFor={this.uniqueId}
+          className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
+          style={style}
+          {...otherProps}
+        >
+          {
+            !this.props.noMessage
+            &&
+            <span
+              className={`simple-file-input-message ${messageClass || ''}`}
+              style={messageStyle}
+            >
+              {this.props[`${this.state.loadingState}Message`]}
+            </span>
+          }
+          {
+            this.props.children
+          }
+        </label>
         <input
           className={`simple-file-input-input ${inputClass || ''}`}
           style={{
@@ -313,20 +331,7 @@ class SimpleFileInput extends Component {
           name={this.uniqueId}
           id={this.uniqueId}
         />
-        {
-          !this.props.noMessage
-          &&
-          <span
-            className={`simple-file-input-message ${messageClass || ''}`}
-            style={messageStyle}
-          >
-            {this.props[`${this.state.loadingState}Message`]}
-          </span>
-        }
-        {
-          this.props.children
-        }
-      </label>
+      </div>
     );
   }
 }
