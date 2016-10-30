@@ -279,18 +279,25 @@ class SimpleFileInput extends Component {
       inputStyle,
       messageClass,
       messageStyle,
+      accept,
+      type,
+
+      // props not fed to UI
+      pristineMessage,  // eslint-disable-line no-unused-vars
+      loadingMessage,   // eslint-disable-line no-unused-vars
+      successMessage,   // eslint-disable-line no-unused-vars
+      failureMessage,   // eslint-disable-line no-unused-vars
       pristineClass,    // eslint-disable-line no-unused-vars
       loadingClass,     // eslint-disable-line no-unused-vars
       successClass,     // eslint-disable-line no-unused-vars
       failureClass,     // eslint-disable-line no-unused-vars
+      remoteFolder,     // eslint-disable-line no-unused-vars
       initialLoadState, // eslint-disable-line no-unused-vars
       minLoadTime,      // eslint-disable-line no-unused-vars
       maxSize,          // eslint-disable-line no-unused-vars
       onBlobLoad,       // eslint-disable-line no-unused-vars
       onS3Load,         // eslint-disable-line no-unused-vars
       signingRoute,     // eslint-disable-line no-unused-vars
-      accept,
-      type,
       ...otherProps
     } = this.props;
 
@@ -405,7 +412,6 @@ class RetrievalButton extends Component {
 
     // default style objects to empty object
     style: {},
-    inputStyle: {},
     messageStyle: {},
 
     // default state-dependent messages
@@ -589,18 +595,19 @@ class RetrievalButton extends Component {
       fileLink,
 
       // props not fed to UI
-      pristineMessage,  // eslint-disable-line no-unused-vars
-      loadingMessage,   // eslint-disable-line no-unused-vars
+      fileName,         // eslint-disable-line no-unused-vars
       successMessage,   // eslint-disable-line no-unused-vars
       failureMessage,   // eslint-disable-line no-unused-vars
       notLoadingClass,  // eslint-disable-line no-unused-vars
       loadingClass,     // eslint-disable-line no-unused-vars
       failureClass,     // eslint-disable-line no-unused-vars
       initialLoadState, // eslint-disable-line no-unused-vars
-      minLoadTime,      // eslint-disable-line no-unused-vars
-      onS3Url,          // eslint-disable-line no-unused-vars
       signingRoute,     // eslint-disable-line no-unused-vars
       remoteFolder,     // eslint-disable-line no-unused-vars
+      minLoadTime,      // eslint-disable-line no-unused-vars
+      onLoadStart,      // eslint-disable-line no-unused-vars
+      onS3Url,          // eslint-disable-line no-unused-vars
+      onS3Res,          // eslint-disable-line no-unused-vars
       ...otherProps
     } = this.props;
 

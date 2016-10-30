@@ -232,20 +232,25 @@ var SimpleFileInput = function (_Component) {
       var inputStyle = _props.inputStyle;
       var messageClass = _props.messageClass;
       var messageStyle = _props.messageStyle;
+      var accept = _props.accept;
+      var type = _props.type;
+      var pristineMessage = _props.pristineMessage;
+      var loadingMessage = _props.loadingMessage;
+      var successMessage = _props.successMessage;
+      var failureMessage = _props.failureMessage;
       var pristineClass = _props.pristineClass;
       var loadingClass = _props.loadingClass;
       var successClass = _props.successClass;
       var failureClass = _props.failureClass;
+      var remoteFolder = _props.remoteFolder;
       var initialLoadState = _props.initialLoadState;
       var minLoadTime = _props.minLoadTime;
       var maxSize = _props.maxSize;
       var onBlobLoad = _props.onBlobLoad;
       var onS3Load = _props.onS3Load;
       var signingRoute = _props.signingRoute;
-      var accept = _props.accept;
-      var type = _props.type;
 
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'messageClass', 'messageStyle', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute', 'accept', 'type']);
+      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'messageClass', 'messageStyle', 'accept', 'type', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
 
       var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
         return ("" + val)[0] !== '.' ? '.' + val : val;
@@ -547,20 +552,21 @@ var RetrievalButton = function (_Component2) {
       var messageStyle = _props2.messageStyle;
       var href = _props2.href;
       var fileLink = _props2.fileLink;
-      var pristineMessage = _props2.pristineMessage;
-      var loadingMessage = _props2.loadingMessage;
+      var fileName = _props2.fileName;
       var successMessage = _props2.successMessage;
       var failureMessage = _props2.failureMessage;
       var notLoadingClass = _props2.notLoadingClass;
       var loadingClass = _props2.loadingClass;
       var failureClass = _props2.failureClass;
       var initialLoadState = _props2.initialLoadState;
-      var minLoadTime = _props2.minLoadTime;
-      var onS3Url = _props2.onS3Url;
       var signingRoute = _props2.signingRoute;
       var remoteFolder = _props2.remoteFolder;
+      var minLoadTime = _props2.minLoadTime;
+      var onLoadStart = _props2.onLoadStart;
+      var onS3Url = _props2.onS3Url;
+      var onS3Res = _props2.onS3Res;
 
-      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'onS3Url', 'signingRoute', 'remoteFolder']);
+      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'fileName', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
 
       return _react2.default.createElement(
         'a',
@@ -649,7 +655,6 @@ RetrievalButton.defaultProps = {
 
   // default style objects to empty object
   style: {},
-  inputStyle: {},
   messageStyle: {},
 
   // default state-dependent messages
