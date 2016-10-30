@@ -56,7 +56,7 @@ var SimpleFileInput = function (_Component) {
   _inherits(SimpleFileInput, _Component);
 
   function SimpleFileInput() {
-    var _ref;
+    var _Object$getPrototypeO;
 
     var _temp, _this, _ret;
 
@@ -66,7 +66,7 @@ var SimpleFileInput = function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SimpleFileInput.__proto__ || Object.getPrototypeOf(SimpleFileInput)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(SimpleFileInput)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
       loadingState: _this.props.initialLoadState || 'pristine'
     }, _this.uniqueId = _shortid2.default.generate(), _this.getUnique = function () {
       return (Number(new Date()).toString() + '_' + _shortid2.default.generate()).replace(urlSafe, '_');
@@ -168,7 +168,7 @@ var SimpleFileInput = function (_Component) {
         }
       }
     }, _this.assetUploadStateHandlerGen = function () {
-      var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
       return function (err, data) {
         if (err) {
           // update loader to failure
@@ -380,7 +380,7 @@ var RetrievalButton = function (_Component2) {
   _inherits(RetrievalButton, _Component2);
 
   function RetrievalButton() {
-    var _ref2;
+    var _Object$getPrototypeO2;
 
     var _temp2, _this2, _ret2;
 
@@ -390,7 +390,7 @@ var RetrievalButton = function (_Component2) {
       args[_key2] = arguments[_key2];
     }
 
-    return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_ref2 = RetrievalButton.__proto__ || Object.getPrototypeOf(RetrievalButton)).call.apply(_ref2, [this].concat(args))), _this2), _this2.state = {
+    return _ret2 = (_temp2 = (_this2 = _possibleConstructorReturn(this, (_Object$getPrototypeO2 = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO2, [this].concat(args))), _this2), _this2.state = {
       loadingState: _this2.props.initialLoadState || 'notLoading',
       loaded: false,
       fileLink: ''
@@ -469,7 +469,7 @@ var RetrievalButton = function (_Component2) {
         return errorHandle(err);
       });
     }, _this2.assetRetrievalStateHandlerGen = function () {
-      var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
       return function (err, data) {
         if (err) {
           // update loader to failure

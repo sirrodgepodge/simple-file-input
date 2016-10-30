@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.signGetFromS3 = exports.signUploadToS3 = exports.setBucket = exports.config = exports.initS3 = exports.s3 = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -32,7 +32,7 @@ var s3 = exports.s3 = {};
 
 // use this function to initialize s3 bucket on previously declared object
 var initS3 = exports.initS3 = function initS3(awsSdk) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   (0, _lodash2.default)(s3, new awsSdk.S3(options));
 
@@ -67,12 +67,12 @@ var getObjectUrl = function getObjectUrl(bucket, name) {
 
 // helper for uploading to S3
 var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
   var reqName = _ref.name;
   var type = _ref.type;
 
-  var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var _ref2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var name = _ref2.name;
   var expires = _ref2.expires;
@@ -114,7 +114,7 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
 };
 
 var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3(name) {
-  var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var _ref3 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var bucket = _ref3.bucket;
   var expires = _ref3.expires;
