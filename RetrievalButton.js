@@ -217,17 +217,23 @@ var RetrievalButton = function (_Component) {
       var noMessage = _props.noMessage;
       var messageClass = _props.messageClass;
       var messageStyle = _props.messageStyle;
+      var href = _props.href;
+      var fileLink = _props.fileLink;
+      var fileName = _props.fileName;
+      var successMessage = _props.successMessage;
+      var failureMessage = _props.failureMessage;
       var notLoadingClass = _props.notLoadingClass;
       var loadingClass = _props.loadingClass;
       var failureClass = _props.failureClass;
       var initialLoadState = _props.initialLoadState;
-      var minLoadTime = _props.minLoadTime;
-      var onS3Url = _props.onS3Url;
       var signingRoute = _props.signingRoute;
-      var href = _props.href;
-      var fileLink = _props.fileLink;
+      var remoteFolder = _props.remoteFolder;
+      var minLoadTime = _props.minLoadTime;
+      var onLoadStart = _props.onLoadStart;
+      var onS3Url = _props.onS3Url;
+      var onS3Res = _props.onS3Res;
 
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'minLoadTime', 'onS3Url', 'signingRoute', 'href', 'fileLink']);
+      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'fileName', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
 
       return _react2.default.createElement(
         'a',
@@ -316,7 +322,6 @@ RetrievalButton.defaultProps = {
 
   // default style objects to empty object
   style: {},
-  inputStyle: {},
   messageStyle: {},
 
   // default state-dependent messages
