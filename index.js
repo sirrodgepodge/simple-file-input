@@ -554,7 +554,9 @@ var RetrievalButton = function (_Component2) {
       var messageStyle = _props2.messageStyle;
       var href = _props2.href;
       var fileLink = _props2.fileLink;
+      var maxSize = _props2.maxSize;
       var fileName = _props2.fileName;
+      var notLoadingMessage = _props2.notLoadingMessage;
       var successMessage = _props2.successMessage;
       var failureMessage = _props2.failureMessage;
       var notLoadingClass = _props2.notLoadingClass;
@@ -568,7 +570,7 @@ var RetrievalButton = function (_Component2) {
       var onS3Url = _props2.onS3Url;
       var onS3Res = _props2.onS3Res;
 
-      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'fileName', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
+      var otherProps = _objectWithoutProperties(_props2, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'maxSize', 'fileName', 'notLoadingMessage', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
 
       return _react2.default.createElement(
         'a',

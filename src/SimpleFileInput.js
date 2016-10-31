@@ -597,7 +597,9 @@ class RetrievalButton extends Component {
       fileLink,
 
       // props not fed to UI
+      maxSize,
       fileName,         // eslint-disable-line no-unused-vars
+      notLoadingMessage,
       successMessage,   // eslint-disable-line no-unused-vars
       failureMessage,   // eslint-disable-line no-unused-vars
       notLoadingClass,  // eslint-disable-line no-unused-vars
