@@ -52,7 +52,7 @@ var RetrievalButton = function (_Component) {
   _inherits(RetrievalButton, _Component);
 
   function RetrievalButton() {
-    var _Object$getPrototypeO;
+    var _ref;
 
     var _temp, _this, _ret;
 
@@ -62,7 +62,7 @@ var RetrievalButton = function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(RetrievalButton)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.state = {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = RetrievalButton.__proto__ || Object.getPrototypeOf(RetrievalButton)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       loadingState: _this.props.initialLoadState || 'notLoading',
       loaded: false,
       fileLink: ''
@@ -141,7 +141,7 @@ var RetrievalButton = function (_Component) {
         return errorHandle(err);
       });
     }, _this.assetRetrievalStateHandlerGen = function () {
-      var startTime = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+      var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       return function (err, data) {
         if (err) {
           // update loader to failure
@@ -210,32 +210,31 @@ var RetrievalButton = function (_Component) {
   _createClass(RetrievalButton, [{
     key: 'render',
     value: function render() {
-      var _props = this.props;
-      var className = _props.className;
-      var style = _props.style;
-      var autoLoad = _props.autoLoad;
-      var noMessage = _props.noMessage;
-      var messageClass = _props.messageClass;
-      var messageStyle = _props.messageStyle;
-      var href = _props.href;
-      var fileLink = _props.fileLink;
-      var maxSize = _props.maxSize;
-      var fileName = _props.fileName;
-      var notLoadingMessage = _props.notLoadingMessage;
-      var successMessage = _props.successMessage;
-      var failureMessage = _props.failureMessage;
-      var notLoadingClass = _props.notLoadingClass;
-      var loadingClass = _props.loadingClass;
-      var failureClass = _props.failureClass;
-      var initialLoadState = _props.initialLoadState;
-      var signingRoute = _props.signingRoute;
-      var remoteFolder = _props.remoteFolder;
-      var minLoadTime = _props.minLoadTime;
-      var onLoadStart = _props.onLoadStart;
-      var onS3Url = _props.onS3Url;
-      var onS3Res = _props.onS3Res;
-
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'maxSize', 'fileName', 'notLoadingMessage', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
+      var _props = this.props,
+          className = _props.className,
+          style = _props.style,
+          autoLoad = _props.autoLoad,
+          noMessage = _props.noMessage,
+          messageClass = _props.messageClass,
+          messageStyle = _props.messageStyle,
+          href = _props.href,
+          fileLink = _props.fileLink,
+          maxSize = _props.maxSize,
+          fileName = _props.fileName,
+          notLoadingMessage = _props.notLoadingMessage,
+          successMessage = _props.successMessage,
+          failureMessage = _props.failureMessage,
+          notLoadingClass = _props.notLoadingClass,
+          loadingClass = _props.loadingClass,
+          failureClass = _props.failureClass,
+          initialLoadState = _props.initialLoadState,
+          signingRoute = _props.signingRoute,
+          remoteFolder = _props.remoteFolder,
+          minLoadTime = _props.minLoadTime,
+          onLoadStart = _props.onLoadStart,
+          onS3Url = _props.onS3Url,
+          onS3Res = _props.onS3Res,
+          otherProps = _objectWithoutProperties(_props, ['className', 'style', 'autoLoad', 'noMessage', 'messageClass', 'messageStyle', 'href', 'fileLink', 'maxSize', 'fileName', 'notLoadingMessage', 'successMessage', 'failureMessage', 'notLoadingClass', 'loadingClass', 'failureClass', 'initialLoadState', 'signingRoute', 'remoteFolder', 'minLoadTime', 'onLoadStart', 'onS3Url', 'onS3Res']);
 
       return _react2.default.createElement(
         'a',
