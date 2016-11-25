@@ -226,6 +226,7 @@ var SimpleFileInput = function (_Component) {
     key: 'render',
     value: function render() {
       var _props = this.props;
+      var containerClass = _props.containerClass;
       var className = _props.className;
       var style = _props.style;
       var inputClass = _props.inputClass;
@@ -252,7 +253,7 @@ var SimpleFileInput = function (_Component) {
       var onS3Load = _props.onS3Load;
       var signingRoute = _props.signingRoute;
 
-      var otherProps = _objectWithoutProperties(_props, ['className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
+      var otherProps = _objectWithoutProperties(_props, ['containerClass', 'className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
 
       var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
         return ("" + val)[0] !== '.' ? '.' + val : val;
@@ -260,7 +261,7 @@ var SimpleFileInput = function (_Component) {
 
       return _react2.default.createElement(
         'div',
-        null,
+        { containerClass: containerClass || '' },
         _react2.default.createElement(
           'label',
           _extends({
@@ -309,6 +310,7 @@ var SimpleFileInput = function (_Component) {
 
 SimpleFileInput.propTypes = {
   // styling
+  containerClass: _react.PropTypes.string,
   className: _react.PropTypes.string,
   style: _react.PropTypes.object,
   inputClass: _react.PropTypes.string,

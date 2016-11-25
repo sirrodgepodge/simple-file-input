@@ -22,6 +22,7 @@ const acceptableExtensionsMap = {
 class SimpleFileInput extends Component {
   static propTypes = {
     // styling
+    containerClass: PropTypes.string,
     className: PropTypes.string,
     style: PropTypes.object,
     inputClass: PropTypes.string,
@@ -273,6 +274,7 @@ class SimpleFileInput extends Component {
 
   render() {
     const {
+      containerClass,
       className,
       style,
       inputClass,
@@ -307,7 +309,7 @@ class SimpleFileInput extends Component {
       .map(val => (""+val)[0] !== '.' ? `.${val}` : val);
 
     return (
-      <div>
+      <div containerClass={containerClass || ''}>
         <label
           htmlFor={this.uniqueId}
           className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
