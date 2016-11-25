@@ -227,6 +227,7 @@ var SimpleFileInput = function (_Component) {
     value: function render() {
       var _props = this.props;
       var containerClass = _props.containerClass;
+      var containerStyle = _props.containerStyle;
       var className = _props.className;
       var style = _props.style;
       var inputClass = _props.inputClass;
@@ -253,7 +254,7 @@ var SimpleFileInput = function (_Component) {
       var onS3Load = _props.onS3Load;
       var signingRoute = _props.signingRoute;
 
-      var otherProps = _objectWithoutProperties(_props, ['containerClass', 'className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
+      var otherProps = _objectWithoutProperties(_props, ['containerClass', 'containerStyle', 'className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
 
       var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
         return ("" + val)[0] !== '.' ? '.' + val : val;
@@ -261,7 +262,10 @@ var SimpleFileInput = function (_Component) {
 
       return _react2.default.createElement(
         'div',
-        { containerClass: containerClass || '' },
+        {
+          containerClass: containerClass || '',
+          containerStyle: containerStyle
+        },
         _react2.default.createElement(
           'label',
           _extends({
@@ -311,6 +315,7 @@ var SimpleFileInput = function (_Component) {
 SimpleFileInput.propTypes = {
   // styling
   containerClass: _react.PropTypes.string,
+  containerStyle: _react.PropTypes.object,
   className: _react.PropTypes.string,
   style: _react.PropTypes.object,
   inputClass: _react.PropTypes.string,

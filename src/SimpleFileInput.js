@@ -23,6 +23,7 @@ class SimpleFileInput extends Component {
   static propTypes = {
     // styling
     containerClass: PropTypes.string,
+    containerStyle: PropTypes.object,
     className: PropTypes.string,
     style: PropTypes.object,
     inputClass: PropTypes.string,
@@ -275,6 +276,7 @@ class SimpleFileInput extends Component {
   render() {
     const {
       containerClass,
+      containerStyle,
       className,
       style,
       inputClass,
@@ -309,7 +311,10 @@ class SimpleFileInput extends Component {
       .map(val => (""+val)[0] !== '.' ? `.${val}` : val);
 
     return (
-      <div containerClass={containerClass || ''}>
+      <div
+        containerClass={containerClass || ''}
+        containerStyle={containerStyle}
+      >
         <label
           htmlFor={this.uniqueId}
           className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}

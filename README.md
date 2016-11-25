@@ -134,8 +134,10 @@ Here are all the available props with corresponding descriptions of what they do
 ```js
 static propTypes = {
   // styling
-  className: PropTypes.string,        // sets className of the root <label/> element
-  style: PropTypes.object,            // styling object passed to the root <label/> element
+  containerClass: PropTypes.string    // sets className of the root <div/> element
+  containerStyle: PropTypes.object,   // styling object passed to the root <div/> element
+  className: PropTypes.string,        // sets className of the <label/> element
+  style: PropTypes.object,            // styling object passed to the <label/> element
   inputClass: PropTypes.string,       // sets className of the <input/> element
   inputStyle: PropTypes.object,       // styling object passed to the <input/> element
   messageClass: PropTypes.string,     // sets className of the <span/> element containing the success/error message
