@@ -262,8 +262,8 @@ var SimpleFileInput = function (_Component) {
       return _react2.default.createElement(
         'div',
         {
-          containerClass: containerClass || '',
-          containerStyle: containerStyle
+          className: containerClass || '',
+          style: containerStyle
         },
         _react2.default.createElement(
           'label',

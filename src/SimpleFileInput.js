@@ -312,8 +312,8 @@ class SimpleFileInput extends Component {
 
     return (
       <div
-        containerClass={containerClass || ''}
-        containerStyle={containerStyle}
+        className={containerClass || ''}
+        style={containerStyle}
       >
         <label
           htmlFor={this.uniqueId}
