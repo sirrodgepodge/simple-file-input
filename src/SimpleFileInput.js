@@ -317,7 +317,7 @@ class SimpleFileInput extends Component {
       >
         <label
           htmlFor={this.uniqueId}
-          className={`simple-file-input-container ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
+          className={`simple-file-input-label ${className || ''} ${this.props[`${this.state.loadingState}Class`]}`}
           style={style}
           {...otherProps}
         >

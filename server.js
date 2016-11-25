@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.signGetFromS3 = exports.signUploadToS3 = exports.setBucket = exports.config = exports.initS3 = exports.s3 = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -32,7 +32,7 @@ var s3 = exports.s3 = {};
 
 // use this function to initialize s3 bucket on previously declared object
 var initS3 = exports.initS3 = function initS3(awsSdk) {
-  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   (0, _lodash2.default)(s3, new awsSdk.S3(options));
 
@@ -67,20 +67,17 @@ var getObjectUrl = function getObjectUrl(bucket, name) {
 
 // helper for uploading to S3
 var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
-  var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      reqName = _ref.name,
+      type = _ref.type;
 
-  var reqName = _ref.name;
-  var type = _ref.type;
-
-  var _ref2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-  var name = _ref2.name;
-  var expires = _ref2.expires;
-  var bucket = _ref2.bucket;
-  var isPrivate = _ref2.isPrivate;
-  var acl = _ref2.acl;
-
-  var otherOptions = _objectWithoutProperties(_ref2, ['name', 'expires', 'bucket', 'isPrivate', 'acl']);
+  var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      name = _ref2.name,
+      expires = _ref2.expires,
+      bucket = _ref2.bucket,
+      isPrivate = _ref2.isPrivate,
+      acl = _ref2.acl,
+      otherOptions = _objectWithoutProperties(_ref2, ['name', 'expires', 'bucket', 'isPrivate', 'acl']);
 
   // catching argument errors
   if (typeof s3.getSignedUrlAsync !== 'function') return console.log(new Error('Need to run the \'initS3\' method prior to using helper functions'));
@@ -114,12 +111,10 @@ var signUploadToS3 = exports.signUploadToS3 = function signUploadToS3() {
 };
 
 var signGetFromS3 = exports.signGetFromS3 = function signGetFromS3(name) {
-  var _ref3 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-  var bucket = _ref3.bucket;
-  var expires = _ref3.expires;
-
-  var otherOptions = _objectWithoutProperties(_ref3, ['bucket', 'expires']);
+  var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      bucket = _ref3.bucket,
+      expires = _ref3.expires,
+      otherOptions = _objectWithoutProperties(_ref3, ['bucket', 'expires']);
 
   // allow key to be provided as a string
   var Key = (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object' && name !== null ? name.name : name;
