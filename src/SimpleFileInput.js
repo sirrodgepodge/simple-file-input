@@ -70,6 +70,9 @@ class SimpleFileInput extends Component {
     // specifies S3 folder path inside of bucket
     remoteFolder: PropTypes.string,
 
+    // determines whether or not user can upload multiple files at once
+    multiple: PropTypes.bool,
+
     // specifies acceptable file types
     type: PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
     accept: PropTypes.array, // allow user to specify extensions
@@ -122,79 +125,80 @@ class SimpleFileInput extends Component {
   }
 
   // asset uploading function
-  assetUpload = (event, startTime, acceptableFileExtensions) => {
-    // file upload vars
-    const fileObj = event.target.files[0],
-      ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
-      name = (typeof this.props.fileName !== 'undefined' ? this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof this.props.fileAppend !== 'undefined' ? this.props.fileAppend : `_${this.getUnique()}`) + ext,
-      type = fileObj.type,
-      size = fileObj.size;
+  assetUpload = (event, startTime, acceptableFileExtensions) =>
+    event.target.files.forEach(file => {
+      // file upload vars
+      const fileObj = file,
+        ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
+        name = (typeof this.props.fileName !== 'undefined' ? this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof this.props.fileAppend !== 'undefined' ? this.props.fileAppend : `_${this.getUnique()}`) + ext,
+        type = fileObj.type,
+        size = fileObj.size;
 
-    const fileInfoObj = {
-      ext,
-      type,
-      size,
-      name,
-      nameWithFolder: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name
-    };
+      const fileInfoObj = {
+        ext,
+        type,
+        size,
+        name,
+        nameWithFolder: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name
+      };
 
-    // clear input so that same file can be uploaded twice in a row
-    if(global.document) {
-      const domElem = document.getElementById(this.uniqueId);
-      if(domElem) {
-        domElem.value = '';
-        domElem.type = '';
-        domElem.type = 'file';
-      }
-    }
-
-    // compose upload state handler
-    const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
-    const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
-
-    if(size > this.props.maxSize) return errorHandle(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`);
-    if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`);
-    else {
-      // trigger 'onLoadStart' function if provided
-      if(this.props.onLoadStart && typeof this.props.onLoadStart === 'function') {
-        this.props.onLoadStart(null, fileInfoObj);
+      // clear input so that same file can be uploaded twice in a row
+      if(global.document) {
+        const domElem = document.getElementById(this.uniqueId);
+        if(domElem) {
+          domElem.value = '';
+          domElem.type = '';
+          domElem.type = 'file';
+        }
       }
 
-      // // Handles immediate return of Data URI
-      if(this.props.onBlobLoad && typeof this.props.onBlobLoad === 'function') {
-        const reader = new FileReader();
-        reader.readAsDataURL(fileObj);
+      // compose upload state handler
+      const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
+      const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
 
-        // send blob load error to callback
-        reader.onerror = err => {
-          if(!this.props.onS3Load || !this.props.signingRoute)
+      if(size > this.props.maxSize) return errorHandle(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`);
+      if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`);
+      else {
+        // trigger 'onLoadStart' function if provided
+        if(this.props.onLoadStart && typeof this.props.onLoadStart === 'function') {
+          this.props.onLoadStart(null, fileInfoObj);
+        }
+
+        // // Handles immediate return of Data URI
+        if(this.props.onBlobLoad && typeof this.props.onBlobLoad === 'function') {
+          const reader = new FileReader();
+          reader.readAsDataURL(fileObj);
+
+          // send blob load error to callback
+          reader.onerror = err => {
+            if(!this.props.onS3Load || !this.props.signingRoute)
             assetUploadStateHandler(err, null);
-          this.props.onBlobLoad(err, null, fileInfoObj);
-        };
+            this.props.onBlobLoad(err, null, fileInfoObj);
+          };
 
-        // sends blob to callback
-        reader.onloadend = e => {
-          if(!this.props.onS3Load || !this.props.signingRoute)
+          // sends blob to callback
+          reader.onloadend = e => {
+            if(!this.props.onS3Load || !this.props.signingRoute)
             assetUploadStateHandler(null, e.target.result);
-          this.props.onBlobLoad(null, e.target.result, fileInfoObj);
-        };
-      }
+            this.props.onBlobLoad(null, e.target.result, fileInfoObj);
+          };
+        }
 
-      // // Handles S3 storage
-      if(this.props.onS3Load && typeof this.props.onS3Load === 'function') {
-        // warn if no upload string provided
-        if(typeof this.props.signingRoute !== 'string')
+        // // Handles S3 storage
+        if(this.props.onS3Load && typeof this.props.onS3Load === 'function') {
+          // warn if no upload string provided
+          if(typeof this.props.signingRoute !== 'string')
           return console.error('need to supply signing route to use s3!');
 
-        simpleIsoFetch.post({
-          route: this.props.signingRoute,
-          body: {
-            name: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name,
-            type
-          }
-        })
-        .then(res => {
-          request.put(res.body.signedRequest, fileObj)
+          simpleIsoFetch.post({
+            route: this.props.signingRoute,
+            body: {
+              name: this.props.remoteFolder ? pathJoin(this.props.remoteFolder, name) : name,
+              type
+            }
+          })
+          .then(res => {
+            request.put(res.body.signedRequest, fileObj)
             .set('Content-Type', type)
             .end((err, final) => {
               const error = err || final.error;
@@ -210,14 +214,14 @@ class SimpleFileInput extends Component {
               // execute callback with S3 stored file name
               this.props.onS3Load(null, res.body.url, fileInfoObj);
             });
-        })
-        .catch(err => {
-          assetUploadStateHandler(err, null);
-          this.props.onS3Load(err, null, fileInfoObj);
-        });
+          })
+          .catch(err => {
+            assetUploadStateHandler(err, null);
+            this.props.onS3Load(err, null, fileInfoObj);
+          });
+        }
       }
-    }
-  }
+    })
 
   // callback fired when upload completes
   assetUploadStateHandlerGen = (startTime = 0) => (err, data) => {
@@ -284,6 +288,7 @@ class SimpleFileInput extends Component {
       noMessage,
       messageClass,
       messageStyle,
+      multiple,
       accept,
       type,
       children,
@@ -342,6 +347,7 @@ class SimpleFileInput extends Component {
             ...inputStyle
           }}
           type='file'
+          multiple={multiple}
           accept={acceptableFileExtensions}
           onChange={this.onChange.bind(this, acceptableFileExtensions)}
           name={this.uniqueId}

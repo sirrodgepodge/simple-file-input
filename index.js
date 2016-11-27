@@ -81,92 +81,94 @@ var SimpleFileInput = function (_Component) {
       // load in input asset
       _this.assetUpload(event, +new Date(), acceptableFileExtensions);
     }, _this.assetUpload = function (event, startTime, acceptableFileExtensions) {
-      // file upload vars
-      var fileObj = event.target.files[0],
-          ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
-          name = (typeof _this.props.fileName !== 'undefined' ? _this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof _this.props.fileAppend !== 'undefined' ? _this.props.fileAppend : '_' + _this.getUnique()) + ext,
-          type = fileObj.type,
-          size = fileObj.size;
+      return event.target.files.forEach(function (file) {
+        // file upload vars
+        var fileObj = file,
+            ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
+            name = (typeof _this.props.fileName !== 'undefined' ? _this.props.fileName : fileObj.name.slice(0, fileObj.name.lastIndexOf('.'))).replace(urlSafe, '_') + (typeof _this.props.fileAppend !== 'undefined' ? _this.props.fileAppend : '_' + _this.getUnique()) + ext,
+            type = fileObj.type,
+            size = fileObj.size;
 
-      var fileInfoObj = {
-        ext: ext,
-        type: type,
-        size: size,
-        name: name,
-        nameWithFolder: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name
-      };
+        var fileInfoObj = {
+          ext: ext,
+          type: type,
+          size: size,
+          name: name,
+          nameWithFolder: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name
+        };
 
-      // clear input so that same file can be uploaded twice in a row
-      if (global.document) {
-        var domElem = document.getElementById(_this.uniqueId);
-        if (domElem) {
-          domElem.value = '';
-          domElem.type = '';
-          domElem.type = 'file';
-        }
-      }
-
-      // compose upload state handler
-      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
-      var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
-
-      if (size > _this.props.maxSize) return errorHandle('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB');
-      if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', '));else {
-        // trigger 'onLoadStart' function if provided
-        if (_this.props.onLoadStart && typeof _this.props.onLoadStart === 'function') {
-          _this.props.onLoadStart(null, fileInfoObj);
+        // clear input so that same file can be uploaded twice in a row
+        if (global.document) {
+          var domElem = document.getElementById(_this.uniqueId);
+          if (domElem) {
+            domElem.value = '';
+            domElem.type = '';
+            domElem.type = 'file';
+          }
         }
 
-        // // Handles immediate return of Data URI
-        if (_this.props.onBlobLoad && typeof _this.props.onBlobLoad === 'function') {
-          var reader = new FileReader();
-          reader.readAsDataURL(fileObj);
+        // compose upload state handler
+        var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+        var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
 
-          // send blob load error to callback
-          reader.onerror = function (err) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(err, null);
-            _this.props.onBlobLoad(err, null, fileInfoObj);
-          };
+        if (size > _this.props.maxSize) return errorHandle('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB');
+        if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', '));else {
+          // trigger 'onLoadStart' function if provided
+          if (_this.props.onLoadStart && typeof _this.props.onLoadStart === 'function') {
+            _this.props.onLoadStart(null, fileInfoObj);
+          }
 
-          // sends blob to callback
-          reader.onloadend = function (e) {
-            if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
-            _this.props.onBlobLoad(null, e.target.result, fileInfoObj);
-          };
-        }
+          // // Handles immediate return of Data URI
+          if (_this.props.onBlobLoad && typeof _this.props.onBlobLoad === 'function') {
+            var reader = new FileReader();
+            reader.readAsDataURL(fileObj);
 
-        // // Handles S3 storage
-        if (_this.props.onS3Load && typeof _this.props.onS3Load === 'function') {
-          // warn if no upload string provided
-          if (typeof _this.props.signingRoute !== 'string') return console.error('need to supply signing route to use s3!');
+            // send blob load error to callback
+            reader.onerror = function (err) {
+              if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(err, null);
+              _this.props.onBlobLoad(err, null, fileInfoObj);
+            };
 
-          _simpleIsoFetch2.default.post({
-            route: _this.props.signingRoute,
-            body: {
-              name: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name,
-              type: type
-            }
-          }).then(function (res) {
-            _superagent2.default.put(res.body.signedRequest, fileObj).set('Content-Type', type).end(function (err, final) {
-              var error = err || final.error;
+            // sends blob to callback
+            reader.onloadend = function (e) {
+              if (!_this.props.onS3Load || !_this.props.signingRoute) assetUploadStateHandler(null, e.target.result);
+              _this.props.onBlobLoad(null, e.target.result, fileInfoObj);
+            };
+          }
 
-              if (error) {
-                assetUploadStateHandler(error, null);
-                return _this.props.onS3Load(error, null, fileInfoObj);
+          // // Handles S3 storage
+          if (_this.props.onS3Load && typeof _this.props.onS3Load === 'function') {
+            // warn if no upload string provided
+            if (typeof _this.props.signingRoute !== 'string') return console.error('need to supply signing route to use s3!');
+
+            _simpleIsoFetch2.default.post({
+              route: _this.props.signingRoute,
+              body: {
+                name: _this.props.remoteFolder ? (0, _isoPathJoin2.default)(_this.props.remoteFolder, name) : name,
+                type: type
               }
+            }).then(function (res) {
+              _superagent2.default.put(res.body.signedRequest, fileObj).set('Content-Type', type).end(function (err, final) {
+                var error = err || final.error;
 
-              // run state handler
-              assetUploadStateHandler(null, res.body.url);
+                if (error) {
+                  assetUploadStateHandler(error, null);
+                  return _this.props.onS3Load(error, null, fileInfoObj);
+                }
 
-              // execute callback with S3 stored file name
-              _this.props.onS3Load(null, res.body.url, fileInfoObj);
+                // run state handler
+                assetUploadStateHandler(null, res.body.url);
+
+                // execute callback with S3 stored file name
+                _this.props.onS3Load(null, res.body.url, fileInfoObj);
+              });
+            }).catch(function (err) {
+              assetUploadStateHandler(err, null);
+              _this.props.onS3Load(err, null, fileInfoObj);
             });
-          }).catch(function (err) {
-            assetUploadStateHandler(err, null);
-            _this.props.onS3Load(err, null, fileInfoObj);
-          });
+          }
         }
-      }
+      });
     }, _this.assetUploadStateHandlerGen = function () {
       var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       return function (err, data) {
@@ -235,6 +237,7 @@ var SimpleFileInput = function (_Component) {
           noMessage = _props.noMessage,
           messageClass = _props.messageClass,
           messageStyle = _props.messageStyle,
+          multiple = _props.multiple,
           accept = _props.accept,
           type = _props.type,
           children = _props.children,
@@ -253,7 +256,7 @@ var SimpleFileInput = function (_Component) {
           onBlobLoad = _props.onBlobLoad,
           onS3Load = _props.onS3Load,
           signingRoute = _props.signingRoute,
-          otherProps = _objectWithoutProperties(_props, ['containerClass', 'containerStyle', 'className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
+          otherProps = _objectWithoutProperties(_props, ['containerClass', 'containerStyle', 'className', 'style', 'inputClass', 'inputStyle', 'noMessage', 'messageClass', 'messageStyle', 'multiple', 'accept', 'type', 'children', 'pristineMessage', 'loadingMessage', 'successMessage', 'failureMessage', 'pristineClass', 'loadingClass', 'successClass', 'failureClass', 'remoteFolder', 'initialLoadState', 'minLoadTime', 'maxSize', 'onBlobLoad', 'onS3Load', 'signingRoute']);
 
       var acceptableFileExtensions = (accept || acceptableExtensionsMap[type]).map(function (val) {
         return ("" + val)[0] !== '.' ? '.' + val : val;
@@ -286,6 +289,7 @@ var SimpleFileInput = function (_Component) {
           className: 'simple-file-input-input ' + (inputClass || ''),
           style: _extends({}, !inputClass && { display: 'none' } || {}, inputStyle),
           type: 'file',
+          multiple: multiple,
           accept: acceptableFileExtensions,
           onChange: this.onChange.bind(this, acceptableFileExtensions),
           name: this.uniqueId,
@@ -360,6 +364,9 @@ SimpleFileInput.propTypes = {
   fileAppend: _react.PropTypes.string,
   // specifies S3 folder path inside of bucket
   remoteFolder: _react.PropTypes.string,
+
+  // determines whether or not user can upload multiple files at once
+  multiple: _react.PropTypes.bool,
 
   // specifies acceptable file types
   type: _react.PropTypes.oneOf(['image', 'video', 'document', 'spreadsheet']), // abstraction
