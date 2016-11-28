@@ -229,7 +229,7 @@ class SimpleFileInput extends Component {
   // callback fired when upload completes
   assetUploadStateHandlerGen = (startTime = 0, totalFileCount) => {
     let fileCounter = 0;
-    (err, data) => {
+    return (err, data) => {
       if (err) {
         // update loader to failure
         this.setState({

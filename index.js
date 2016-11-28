@@ -176,7 +176,7 @@ var SimpleFileInput = function (_Component) {
       var totalFileCount = arguments[1];
 
       var fileCounter = 0;
-      (function (err, data) {
+      return function (err, data) {
         if (err) {
           // update loader to failure
           _this.setState({
@@ -199,7 +199,7 @@ var SimpleFileInput = function (_Component) {
             loadingState: 'failure'
           });
         }
-      });
+      };
     }, _this.errorHandle = function (assetUploadStateHandler, err) {
       if (_this.props.onLoadStart) _this.props.onLoadStart(err, null);
       if (_this.props.onS3Load) _this.props.onS3Load(err, null);
