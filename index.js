@@ -81,11 +81,13 @@ var SimpleFileInput = function (_Component) {
       // load in input asset
       _this.assetUpload(event, +new Date(), acceptableFileExtensions);
     }, _this.assetUpload = function (event, startTime, acceptableFileExtensions) {
+      var fileArray = Array.from(event.target.files);
+
       // compose upload state handler
-      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime, fileArray.length);
       var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
 
-      Array.from(event.target.files).forEach(function (file) {
+      fileArray.forEach(function (file) {
         // file upload vars
         var fileObj = file,
             ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
