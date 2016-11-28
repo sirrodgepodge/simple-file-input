@@ -81,7 +81,11 @@ var SimpleFileInput = function (_Component) {
       // load in input asset
       _this.assetUpload(event, +new Date(), acceptableFileExtensions);
     }, _this.assetUpload = function (event, startTime, acceptableFileExtensions) {
-      return Array.from(event.target.files).forEach(function (file) {
+      // compose upload state handler
+      var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
+      var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
+
+      Array.from(event.target.files).forEach(function (file) {
         // file upload vars
         var fileObj = file,
             ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
@@ -106,10 +110,6 @@ var SimpleFileInput = function (_Component) {
             domElem.type = 'file';
           }
         }
-
-        // compose upload state handler
-        var assetUploadStateHandler = _this.assetUploadStateHandlerGen(startTime);
-        var errorHandle = _this.errorHandle.bind(_this, assetUploadStateHandler);
 
         if (size > _this.props.maxSize) return errorHandle('upload is too large, upload size limit is ' + Math.round(size / 100) / 10 + 'KB');
         if (acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle('upload is not acceptable file type, acceptable extensions include ' + acceptableFileExtensions.join(', '));else {
@@ -171,19 +171,25 @@ var SimpleFileInput = function (_Component) {
       });
     }, _this.assetUploadStateHandlerGen = function () {
       var startTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      return function (err, data) {
+      var totalFileCount = arguments[1];
+
+      var fileCounter = 0;
+      (function (err, data) {
         if (err) {
           // update loader to failure
           _this.setState({
             loadingState: 'failure'
           });
         } else if (data) {
-          // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
-          var waitTime = Math.max(0, _this.props.minLoadTime - +new Date() + startTime);
-          if (waitTime) {
-            setTimeout(_this.setSuccess, waitTime);
-          } else {
-            _this.setSuccess();
+          fileCounter++;
+          if (fileCounter === totalFileCount) {
+            // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
+            var waitTime = Math.max(0, _this.props.minLoadTime - +new Date() + startTime);
+            if (waitTime) {
+              setTimeout(_this.setSuccess, waitTime);
+            } else {
+              _this.setSuccess();
+            }
           }
         } else {
           // update loader to failure
@@ -191,7 +197,7 @@ var SimpleFileInput = function (_Component) {
             loadingState: 'failure'
           });
         }
-      };
+      });
     }, _this.errorHandle = function (assetUploadStateHandler, err) {
       if (_this.props.onLoadStart) _this.props.onLoadStart(err, null);
       if (_this.props.onS3Load) _this.props.onS3Load(err, null);

@@ -125,7 +125,11 @@ class SimpleFileInput extends Component {
   }
 
   // asset uploading function
-  assetUpload = (event, startTime, acceptableFileExtensions) =>
+  assetUpload = (event, startTime, acceptableFileExtensions) => {
+    // compose upload state handler
+    const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
+    const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
+
     Array.from(event.target.files).forEach(file => {
       // file upload vars
       const fileObj = file,
@@ -151,10 +155,6 @@ class SimpleFileInput extends Component {
           domElem.type = 'file';
         }
       }
-
-      // compose upload state handler
-      const assetUploadStateHandler = this.assetUploadStateHandlerGen(startTime);
-      const errorHandle = this.errorHandle.bind(this, assetUploadStateHandler);
 
       if(size > this.props.maxSize) return errorHandle(`upload is too large, upload size limit is ${Math.round(size/100)/10}KB`);
       if(acceptableFileExtensions.indexOf(ext.toLowerCase()) === -1) return errorHandle(`upload is not acceptable file type, acceptable extensions include ${acceptableFileExtensions.join(', ')}`);
@@ -222,29 +222,36 @@ class SimpleFileInput extends Component {
         }
       }
     })
+  }
 
   // callback fired when upload completes
-  assetUploadStateHandlerGen = (startTime = 0) => (err, data) => {
-    if (err) {
-      // update loader to failure
-      this.setState({
-        loadingState: 'failure'
-      });
-    } else if (data) {
-      // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
-      const waitTime = Math.max(0, this.props.minLoadTime - +new Date + startTime);
-      if(waitTime) {
-        setTimeout(this.setSuccess, waitTime);
+  assetUploadStateHandlerGen = (startTime = 0, totalFileCount) => {
+    let fileCounter = 0;
+    (err, data) => {
+      if (err) {
+        // update loader to failure
+        this.setState({
+          loadingState: 'failure'
+        });
+      } else if (data) {
+        fileCounter++;
+        if(fileCounter === totalFileCount) {
+          // update loader with success, wait a minimum amount of time if specified in order to smooth aesthetic
+          const waitTime = Math.max(0, this.props.minLoadTime - +new Date + startTime);
+          if(waitTime) {
+            setTimeout(this.setSuccess, waitTime);
+          } else {
+            this.setSuccess();
+          }
+        }
       } else {
-        this.setSuccess();
+        // update loader to failure
+        this.setState({
+          loadingState: 'failure'
+        });
       }
-    } else {
-      // update loader to failure
-      this.setState({
-        loadingState: 'failure'
-      });
     }
-  };
+  }
 
   errorHandle = (assetUploadStateHandler, err) => {
     if(this.props.onLoadStart) this.props.onLoadStart(err, null);
