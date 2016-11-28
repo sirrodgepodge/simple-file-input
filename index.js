@@ -81,7 +81,7 @@ var SimpleFileInput = function (_Component) {
       // load in input asset
       _this.assetUpload(event, +new Date(), acceptableFileExtensions);
     }, _this.assetUpload = function (event, startTime, acceptableFileExtensions) {
-      return event.target.files.forEach(function (file) {
+      return Array.from(event.target.files).forEach(function (file) {
         // file upload vars
         var fileObj = file,
             ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),

@@ -126,7 +126,7 @@ class SimpleFileInput extends Component {
 
   // asset uploading function
   assetUpload = (event, startTime, acceptableFileExtensions) =>
-    event.target.files.forEach(file => {
+    Array.from(event.target.files).forEach(file => {
       // file upload vars
       const fileObj = file,
         ext = fileObj.name.slice(fileObj.name.lastIndexOf('.')),
